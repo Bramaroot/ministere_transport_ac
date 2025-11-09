@@ -2,6 +2,10 @@
 -- Créé le : 16/10/2025
 -- Version : 2.0 - Schéma complet avec toutes les fonctionnalités
 
+
+--CREATE DATABASE ministere_transports_niger;
+
+
 -- Suppression des tables si elles existent déjà (attention, cela va supprimer toutes les données)
 DROP TABLE IF EXISTS demandes_services CASCADE;
 DROP TABLE IF EXISTS documents_services CASCADE;
@@ -475,6 +479,24 @@ INSERT INTO utilisateurs (
 ) VALUES (
     'admin',
     'ibrahimking719@gmail.com',
+    '$2b$10$6BpF5J5Lhq3L7V9q8vZr7e0bX1vQ4wYk1Xx8cDvXKJmN2lZ1XyZz', -- bcrypt hash de 'admin123'
+    'Administrateur',
+    'Système',
+    'admin',
+    true
+) ON CONFLICT (nom_utilisateur) DO NOTHING;
+
+INSERT INTO utilisateurs (
+    nom_utilisateur, 
+    email, 
+    mot_de_passe_hash, 
+    prenom, 
+    nom, 
+    role, 
+    actif
+) VALUES (
+    'David',
+    'davidmalick@chumain.com',
     '$2b$10$6BpF5J5Lhq3L7V9q8vZr7e0bX1vQ4wYk1Xx8cDvXKJmN2lZ1XyZz', -- bcrypt hash de 'admin123'
     'Administrateur',
     'Système',
