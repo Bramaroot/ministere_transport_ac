@@ -1,0 +1,1196 @@
+{
+  "info": {
+    "name": "Niger Transport API",
+    "description": "Collection complète des endpoints API du Ministère des Transports et de l'Aviation Civile du Niger",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345678"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login Standard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifiant\": \"admin@transport-niger.ne\",\n  \"mot_de_passe\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Connexion standard avec génération d'access token et refresh token"
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Login (Simple)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifiant\": \"admin@transport-niger.ne\",\n  \"mot_de_passe\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "admin", "login"]
+            },
+            "description": "Connexion admin simplifiée sans OTP"
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Login with OTP (Step 1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifiant\": \"admin@transport-niger.ne\",\n  \"mot_de_passe\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/login-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "admin", "login-otp"]
+            },
+            "description": "Étape 1: Connexion admin avec envoi d'OTP par email"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Admin OTP (Step 2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@transport-niger.ne\",\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "admin", "verify-otp"]
+            },
+            "description": "Étape 2: Vérification du code OTP"
+          },
+          "response": []
+        },
+        {
+          "name": "Resend Admin OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@transport-niger.ne\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/resend-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "admin", "resend-otp"]
+            },
+            "description": "Renvoyer un nouveau code OTP"
+          },
+          "response": []
+        },
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"nom_utilisateur\": \"username\",\n  \"mot_de_passe\": \"password123\",\n  \"prenom\": \"John\",\n  \"nom\": \"Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Inscription d'un nouvel utilisateur"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            },
+            "description": "Récupérer le profil de l'utilisateur connecté"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Renouveler l'access token avec le refresh token (cookie)"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Déconnexion et révocation du refresh token"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Admin Token (Dev Only)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "admin-token"]
+            },
+            "description": "Générer un token admin legacy (développement uniquement)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints d'authentification et gestion de session"
+    },
+    {
+      "name": "News (Actualités)",
+      "item": [
+        {
+          "name": "Get All News",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/news?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["news"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Récupérer toutes les actualités (public)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get News by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/news/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["news", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Récupérer une actualité par ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create News",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Nouvelle actualité\",\n  \"contenu\": \"Contenu de l'actualité...\",\n  \"categorie\": \"transport\",\n  \"image_url\": \"/uploads/image.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/news",
+              "host": ["{{baseUrl}}"],
+              "path": ["news"]
+            },
+            "description": "Créer une nouvelle actualité (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update News",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Titre modifié\",\n  \"contenu\": \"Contenu modifié...\",\n  \"categorie\": \"aviation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/news/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["news", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Modifier une actualité (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete News",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/news/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["news", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Supprimer une actualité (admin uniquement)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Gestion des actualités"
+    },
+    {
+      "name": "Events (Événements)",
+      "item": [
+        {
+          "name": "Get All Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["events"]
+            },
+            "description": "Récupérer tous les événements (public)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Récupérer un événement par ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Nouvel événement\",\n  \"description\": \"Description de l'événement\",\n  \"date_evenement\": \"2025-12-31T10:00:00Z\",\n  \"lieu\": \"Niamey\",\n  \"image_url\": \"/uploads/event.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["events"]
+            },
+            "description": "Créer un nouvel événement (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Événement modifié\",\n  \"description\": \"Description modifiée\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Modifier un événement (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Event",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Supprimer un événement (admin uniquement)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Gestion des événements"
+    },
+    {
+      "name": "Projects (Projets)",
+      "item": [
+        {
+          "name": "Get All Projects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
+            },
+            "description": "Récupérer tous les projets (public)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Récupérer un projet par ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Nouveau projet\",\n  \"description\": \"Description du projet\",\n  \"statut\": \"en_cours\",\n  \"budget\": 1000000,\n  \"date_debut\": \"2025-01-01\",\n  \"date_fin_prevue\": \"2025-12-31\",\n  \"partenaires\": \"Partenaire 1, Partenaire 2\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
+            },
+            "description": "Créer un nouveau projet (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Projet modifié\",\n  \"statut\": \"termine\",\n  \"progression\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Modifier un projet (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Project",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Supprimer un projet (admin uniquement)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Gestion des projets"
+    },
+    {
+      "name": "Tenders (Appels d'Offres)",
+      "item": [
+        {
+          "name": "Get All Tenders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tenders",
+              "host": ["{{baseUrl}}"],
+              "path": ["tenders"]
+            },
+            "description": "Récupérer tous les appels d'offres (public)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Tender by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tenders/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["tenders", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Récupérer un appel d'offres par ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Tender",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Nouvel appel d'offres\",\n  \"description\": \"Description de l'appel d'offres\",\n  \"type\": \"travaux\",\n  \"date_publication\": \"2025-01-01\",\n  \"date_limite\": \"2025-02-01\",\n  \"montant_estime\": 5000000,\n  \"statut\": \"ouvert\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tenders",
+              "host": ["{{baseUrl}}"],
+              "path": ["tenders"]
+            },
+            "description": "Créer un nouvel appel d'offres (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Tender",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Appel d'offres modifié\",\n  \"statut\": \"ferme\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tenders/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["tenders", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Modifier un appel d'offres (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Tender",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tenders/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["tenders", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Supprimer un appel d'offres (admin uniquement)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Gestion des appels d'offres"
+    },
+    {
+      "name": "Users (Utilisateurs)",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Récupérer tous les utilisateurs (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Récupérer un utilisateur par ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom_utilisateur\": \"nouveau_username\",\n  \"email\": \"newemail@example.com\",\n  \"prenom\": \"John\",\n  \"nom\": \"Doe\",\n  \"role\": \"editeur\",\n  \"actif\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Modifier un utilisateur (admin ou l'utilisateur lui-même)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Supprimer un utilisateur (admin uniquement)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Gestion des utilisateurs"
+    },
+    {
+      "name": "Profile (Profil)",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile"]
+            },
+            "description": "Récupérer son propre profil"
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom_utilisateur\": \"nouveau_username\",\n  \"email\": \"newemail@example.com\",\n  \"prenom\": \"John\",\n  \"nom\": \"Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile"]
+            },
+            "description": "Modifier son propre profil"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ancien_mot_de_passe\": \"oldpassword123\",\n  \"nouveau_mot_de_passe\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile/password",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile", "password"]
+            },
+            "description": "Changer son mot de passe"
+          },
+          "response": []
+        }
+      ],
+      "description": "Gestion du profil utilisateur"
+    },
+    {
+      "name": "Services (E-Services)",
+      "item": [
+        {
+          "name": "Submit Permis International",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nom",
+                  "value": "Doe",
+                  "type": "text"
+                },
+                {
+                  "key": "prenom",
+                  "value": "John",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "john.doe@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "telephone",
+                  "value": "+227 12 34 56 78",
+                  "type": "text"
+                },
+                {
+                  "key": "demande_manuscrite",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "timbre_fiscal",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "copie_permis_national",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "photos_identite",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "photos_identite",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/services/permis-international",
+              "host": ["{{baseUrl}}"],
+              "path": ["services", "permis-international"]
+            },
+            "description": "Soumettre une demande de permis international"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Permis International Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services/permis-international/:codeSuivi",
+              "host": ["{{baseUrl}}"],
+              "path": ["services", "permis-international", ":codeSuivi"],
+              "variable": [
+                {
+                  "key": "codeSuivi",
+                  "value": "1234-5678-90ab-cdef"
+                }
+              ]
+            },
+            "description": "Vérifier le statut d'une demande de permis international"
+          },
+          "response": []
+        }
+      ],
+      "description": "Services en ligne (E-Services)"
+    },
+    {
+      "name": "Admin - Permis International",
+      "item": [
+        {
+          "name": "Get All Demandes Permis International",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/demandes/permis-international?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "demandes", "permis-international"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Récupérer toutes les demandes de permis international (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Demande Permis International by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/demandes/permis-international/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "demandes", "permis-international", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Récupérer une demande par ID (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Demande Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"en_cours_de_traitement\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/demandes/permis-international/:id/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "demandes", "permis-international", ":id", "status"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Mettre à jour le statut d'une demande (admin uniquement)"
+          },
+          "response": []
+        },
+        {
+          "name": "Download Private Document",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/documents/permis-international/:codeSuivi/:fileName",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "documents", "permis-international", ":codeSuivi", ":fileName"],
+              "variable": [
+                {
+                  "key": "codeSuivi",
+                  "value": "1234-5678-90ab-cdef"
+                },
+                {
+                  "key": "fileName",
+                  "value": "document.pdf"
+                }
+              ]
+            },
+            "description": "Télécharger un document privé (admin uniquement)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Administration des demandes de permis international"
+    },
+    {
+      "name": "Stats (Statistiques)",
+      "item": [
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats"]
+            },
+            "description": "Récupérer les statistiques du dashboard (admin uniquement)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Statistiques et tableaux de bord"
+    },
+    {
+      "name": "Upload",
+      "item": [
+        {
+          "name": "Upload File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["upload"]
+            },
+            "description": "Uploader un fichier (images, documents, etc.)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Upload de fichiers"
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
