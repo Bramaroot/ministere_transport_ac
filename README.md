@@ -51,10 +51,6 @@ You need to run both frontend and backend simultaneously:
 
 The database schema is in `database/schema.sql`. Additional SQL files:
 
-- `database/add_otp_columns.sql` - 2FA/OTP support
-- `database/create_events_table.sql` - Events table schema
-- `database/insert_sample_tenders.sql` - Sample tender data
-
 **Key tables:**
 
 - `utilisateurs` - Users with roles (admin, editeur, consultant), 2FA support
