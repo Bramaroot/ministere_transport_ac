@@ -67,7 +67,8 @@ export const login = async (req: Request, res: Response) => {
     const accessToken = signAccessToken({ userId: user.id, role: user.role });
     const { token: refreshToken, jti } = signRefreshToken({ userId: user.id });
 
-    await saveRefresh(jti, {
+    await saveRefresh({
+      jti,
       userId: user.id,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       userAgent: req.headers["user-agent"] || "",
@@ -582,7 +583,8 @@ export const verifyAdminOTP = async (req: Request, res: Response) => {
     const accessToken = signAccessToken({ userId: user.id, role: user.role });
     const { token: refreshToken, jti } = signRefreshToken({ userId: user.id });
 
-    await saveRefresh(jti, {
+    await saveRefresh({
+      jti,
       userId: user.id,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       userAgent: req.headers["user-agent"] || "",

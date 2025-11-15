@@ -8,14 +8,14 @@ import bcrypt from "bcrypt";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Spécifier le chemin vers le fichier .env dans le dossier server
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+// Charger les variables d'environnement depuis la racine du projet
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const pool = new Pool({
   user: process.env.DB_USER || "postgres",
   host: process.env.DB_HOST || "localhost",
-  database: process.env.DB_NAME || "mtac_bd",
-  password: process.env.DB_PASSWORD || "postgres",
+  database: process.env.DB_NAME || "ministere_transports_niger",
+  password: process.env.DB_PASSWORD || "00000000",
   port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432,
 });
 

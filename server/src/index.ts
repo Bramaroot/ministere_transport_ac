@@ -18,6 +18,7 @@ import tenderRoutes from './routes/tenderRoutes';
 import statsRoutes from './routes/statsRoutes';
 import serviceRoutes from './routes/serviceRoutes';
 import adminServiceRoutes from './routes/adminServiceRoutes';
+import privateUploadsRoutes from './routes/privateUploadsRoutes';
 
 // Import de la connexion à la base de données
 import pool from './db';
@@ -88,9 +89,33 @@ app.use(cors({
 app.use(express.json()); // Pour parser les requêtes JSON
 app.use(cookieParser()); // Pour parser les cookies
 
-// Servir les fichiers statiques (images uploadées)
+// Servir les fichiers statiques (images uploadées publiques uniquement)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-app.use('/private_uploads', express.static(path.join(__dirname, '../private_uploads'))); // Pour les fichiers privés
+
+// Health check endpoint (pour monitoring et load balancers)
+app.get('/health', async (req, res) => {
+  try {
+    // Tester la connexion à la base de données
+    const client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
+
+    res.status(200).json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      database: 'connected',
+      environment: process.env.NODE_ENV || 'development'
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      database: 'disconnected',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
 
 // Routes
 app.use('/api/news', newsRoutes);
@@ -104,6 +129,9 @@ app.use('/api/tenders', tenderRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api', serviceRoutes); // Routes de services généraux
 app.use('/api/admin', adminServiceRoutes); // Routes de services admin
+
+// Route protégée pour les fichiers privés (DOIT être après les routes d'API)
+app.use('/private_uploads', privateUploadsRoutes);
 
 // Démarrage du serveur
 app.listen(port, () => {

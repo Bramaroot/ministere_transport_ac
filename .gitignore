@@ -7,10 +7,33 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build outputs
 dist
 dist-ssr
+server/dist
 *.local
+
+# Environment variables (CRITICAL - DO NOT COMMIT)
+.env
+.env.local
+.env.production
+.env.development
+server/.env
+server/.env.local
+
+# Uploads (user-generated content)
+server/uploads/*
+!server/uploads/.gitkeep
+server/private_uploads/*
+!server/private_uploads/.gitkeep
+
+# PM2 logs and process files
+.pm2
+pm2.log
+ecosystem.config.js.backup
 
 # Editor directories and files
 .vscode/*
@@ -23,7 +46,14 @@ dist-ssr
 *.sln
 *.sw?
 
+# OS files
+.DS_Store
+Thumbs.db
 
+# Temporary files
+*.tmp
+*.temp
 
+# Documentation (AI-generated)
 GEMINI.md
 CLAUDE.md

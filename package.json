@@ -9,10 +9,16 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "dev:server": "nodemon --exec tsx server/src/index.ts",
+    "dev:server": "nodemon --exec \"npx tsx\" server/src/index.ts",
     "build:server": "tsc -p server/tsconfig.json",
     "start": "node server/dist/index.js",
-    "build:all": "npm run build && npm run build:server"
+    "build:all": "npm run build && npm run build:server",
+    "deploy": "bash scripts/deploy.sh",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:stop": "pm2 stop mtac-backend",
+    "pm2:restart": "pm2 restart mtac-backend",
+    "pm2:logs": "pm2 logs mtac-backend",
+    "pm2:status": "pm2 status"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

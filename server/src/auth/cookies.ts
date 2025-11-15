@@ -1,4 +1,6 @@
-export function setRefreshCookie(res, token) {
+import { Response } from 'express';
+
+export function setRefreshCookie(res: Response, token: string): void {
     res.cookie("rt", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -7,7 +9,7 @@ export function setRefreshCookie(res, token) {
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 }
-export function clearRefreshCookie(res) {
+export function clearRefreshCookie(res: Response): void {
     res.clearCookie("rt", {
         path: "/",
         sameSite: "lax",
