@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Eye, Users, Building2, Award } from "lucide-react";
@@ -12,15 +10,13 @@ const About = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
+    <>
       <PageBanner
         title="À Propos du Ministère"
         description="Présentation de l'organisation, de la mission et de l'engagement du Ministère pour le développement stratégique des transports au Niger."
       />
 
-      <main className="py-16">
+      <div className="py-16 bg-gray-50">
         <div className="container space-y-16">
           {/* Section Organigramme */}
           <section id="organigramme">
@@ -246,10 +242,8 @@ const About = () => {
             </div>
           </section>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

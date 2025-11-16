@@ -1,7 +1,5 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Calendar, ArrowLeft, Share2, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,7 +19,6 @@ const NewsDetail = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     fetchArticle();
   }, [id]);
 
@@ -66,8 +63,7 @@ const NewsDetail = () => {
 
   if (!article) {
     return (
-      <div className="min-h-screen">
-        <Navbar />
+      <>
         <div className="container text-center py-20">
           <h1 className="text-2xl font-bold">Article non trouvé</h1>
           <p className="text-muted-foreground mb-6">L'article que vous cherchez n'existe pas ou a été déplacé.</p>
@@ -75,16 +71,13 @@ const NewsDetail = () => {
             <Button>Retour aux actualités</Button>
           </Link>
         </div>
-        <Footer />
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      
-      <main className="py-8">
+    <>
+      <div className="py-8">
         <div className="container">
           <Link to="/actualites">
             <Button variant="ghost" className="mb-6 group">
@@ -127,10 +120,8 @@ const NewsDetail = () => {
 
           </article>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

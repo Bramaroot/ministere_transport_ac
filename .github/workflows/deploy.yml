@@ -1,0 +1,107 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Permet le déclenchement manuel
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+      url: https://transports.gouv.ne
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build frontend and backend
+        run: npm run build:all
+        env:
+          NODE_ENV: production
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            echo "🚀 Starting deployment to transports.gouv.ne..."
+
+            # Navigation vers le répertoire du projet
+            cd /home/ansi/websites/transports.gouv.ne
+
+            # Backup de l'ancienne version (optionnel)
+            echo " Creating backup..."
+            pm2 save || true
+
+            # Pull des dernières modifications
+            echo " Pulling latest changes..."
+            git pull origin main
+
+            # Installation des dépendances
+            echo " Installing dependencies..."
+            npm ci --legacy-peer-deps --production=false
+
+            # Build du frontend et du backend
+            echo "🔨 Building frontend and backend..."
+            npm run build:all
+
+            # Créer les répertoires nécessaires
+            echo " Creating directories..."
+            mkdir -p logs
+            mkdir -p server/uploads/{news,avatars,events,projects}
+            mkdir -p server/private_uploads/{temp,permis_international}
+
+            # Reload de l'application avec PM2 (sans downtime)
+            echo " Reloading application..."
+            pm2 reload ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production
+
+            # Sauvegarder la configuration PM2
+            pm2 save
+
+            # Recharger nginx (si config modifiée)
+            echo " Reloading nginx..."
+            sudo nginx -t && sudo systemctl reload nginx || echo "  Nginx reload skipped"
+
+            # Vérification de santé
+            echo " Health check..."
+            sleep 5
+            curl -f http://localhost:4000/health || echo "  Health check failed"
+
+            echo "✅ Deployment completed successfully!"
+
+      - name: Verify deployment
+        if: success()
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            echo " PM2 Status:"
+            pm2 status
+
+            echo ""
+            echo " Application Health:"
+            curl -s http://localhost:4000/health | jq . || curl http://localhost:4000/health
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo " Deployment failed! Check the logs above."

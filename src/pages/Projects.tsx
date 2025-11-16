@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plane, Truck, Building2, ArrowRight, Calendar, MapPin, Users, TrendingUp, Tag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,7 +63,6 @@ const Projects = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
         <PageBanner
           title="Projets et Infrastructures"
           description="Découvrez nos projets en cours et nos réalisations dans le domaine du transport"
@@ -75,14 +72,12 @@ const Projects = () => {
             <div className="text-lg">Chargement des projets...</div>
           </div>
         </div>
-        <Footer />
       </>
     );
   }
 
   return (
     <>
-      <Navbar />
       <PageBanner
         title="Projets et Infrastructures"
         description="Découvrez nos projets en cours et nos réalisations dans le domaine du transport"
@@ -184,8 +179,6 @@ const Projects = () => {
 
         </div>
       </div>
-
-      <Footer />
     </>
   );
 };

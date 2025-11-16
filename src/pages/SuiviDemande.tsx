@@ -11,8 +11,6 @@ import { getPermisInternationalStatus } from '@/services/serviceService';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { AxiosError } from 'axios';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 
 const formSchema = z.object({
   codeSuivi: z.string().min(1, { message: 'Le code de suivi est requis.' }).length(19, { message: 'Le code de suivi doit contenir 16 caractères (ex: xxxx-xxxx-xxxx-xxxx).' }),
@@ -48,7 +46,6 @@ const SuiviDemande: React.FC = () => {
 
   return (
     <>
-      <Navbar />
       <PageBanner title="Suivi de Demande" />
       <div className="container mx-auto py-10">
         <Card className="max-w-2xl mx-auto">
@@ -94,7 +91,6 @@ const SuiviDemande: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-      <Footer />
     </>
   );
 };

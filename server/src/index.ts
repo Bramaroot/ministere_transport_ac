@@ -86,8 +86,34 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
+import rateLimit from 'express-rate-limit';
+
+// ... (autres imports)
+
+// ... (après la ligne app.use(cookieParser()))
+
 app.use(express.json()); // Pour parser les requêtes JSON
 app.use(cookieParser()); // Pour parser les cookies
+
+// Configuration de la limitation de débit (Rate Limiting)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // Limite chaque IP à 200 requêtes par fenêtre de 15 minutes
+  standardHeaders: true, // Active les en-têtes standard `RateLimit-*`
+  legacyHeaders: false, // Désactive les en-têtes `X-RateLimit-*`
+  message: 'Trop de requêtes envoyées depuis cette IP, veuillez réessayer après 15 minutes.',
+});
+
+const authLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 10, // Limite à 10 tentatives par fenêtre pour les routes d'authentification
+  message: 'Trop de tentatives de connexion. Veuillez réessayer dans 10 minutes.',
+});
+
+// Appliquer les limiteurs aux routes
+app.use('/api', apiLimiter);
+app.use('/api/auth', authLimiter);
+
 
 // Servir les fichiers statiques (images uploadées publiques uniquement)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

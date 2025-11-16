@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,10 +9,6 @@ import DocumentsModal from "@/components/DocumentsModal";
 const EServices = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const handleShowDocuments = (service) => {
     setSelectedService(service);
@@ -318,15 +312,13 @@ const EServices = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-
+    <>
       <PageBanner
         title="E-Services"
         description="Accédez aux services en ligne du Ministère des Transports et de l'Aviation Civile"
       />
 
-      <main className="py-16">
+      <div className="py-16">
         <div className="container">
           {/* Introduction */}
           <section className="text-center mb-16">
@@ -414,9 +406,7 @@ const EServices = () => {
 
 
         </div>
-      </main>
-
-      <Footer />
+      </div>
 
       {/* Modal pour afficher les documents requis */}
       {selectedService && (
@@ -427,7 +417,7 @@ const EServices = () => {
           documents={selectedService.documents}
         />
       )}
-    </div>
+    </>
   );
 };
 

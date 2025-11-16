@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +24,6 @@ const News = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     fetchNews();
   }, []);
 
@@ -60,9 +57,7 @@ const News = () => {
   }, [searchQuery, allNews]);
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      
+    <>
       <PageBanner 
         title="Actualités"
         description="Suivez toutes les nouvelles et annonces du Ministère des Transports et de l'Aviation Civile"
@@ -132,9 +127,7 @@ const News = () => {
           )}
         </div>
       </section>
-
-      <Footer />
-    </div>
+    </>
   );
 };
 

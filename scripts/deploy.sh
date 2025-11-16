@@ -52,43 +52,40 @@ fi
 log_info "Installation des dépendances..."
 npm install --production=false
 
-# 2. Build du frontend
-log_info "Build du frontend..."
-npm run build
+# 2. Build du frontend et du backend
+log_info "Build du frontend et du backend..."
+npm run build:all
 
+# Vérifier que les répertoires de build ont été créés
 if [ ! -d "dist" ]; then
     log_error "Le répertoire dist n'a pas été créé. Build frontend échoué."
     exit 1
 fi
-
-# 3. Build du backend
-log_info "Build du backend..."
-npm run build:server
 
 if [ ! -d "server/dist" ]; then
     log_error "Le répertoire server/dist n'a pas été créé. Build backend échoué."
     exit 1
 fi
 
-# 4. Vérifier la configuration PM2
+# 3. Vérifier la configuration PM2
 if [ ! -f "ecosystem.config.cjs" ]; then
     log_error "Le fichier ecosystem.config.cjs n'existe pas."
     exit 1
 fi
 
-# 5. Créer les répertoires nécessaires
+# 4. Créer les répertoires nécessaires
 log_info "Création des répertoires de logs et uploads..."
 mkdir -p logs
 mkdir -p server/uploads/{news,avatars,events,projects}
 mkdir -p server/private_uploads/{temp,permis_international}
 
-# 6. Vérifier la présence du fichier .env
+# 5. Vérifier la présence du fichier .env
 if [ ! -f ".env" ]; then
     log_error "Le fichier .env n'existe pas. Copiez .env.exemple et configurez-le."
     exit 1
 fi
 
-# 7. Vérifier les variables d'environnement critiques
+# 6. Vérifier les variables d'environnement critiques
 log_info "Vérification des variables d'environnement..."
 source .env
 
@@ -106,7 +103,7 @@ if [ ${#MISSING_VARS[@]} -gt 0 ]; then
     exit 1
 fi
 
-# 8. Tester la connexion à la base de données
+# 7. Tester la connexion à la base de données
 log_info "Test de connexion à la base de données..."
 PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c "SELECT 1;" > /dev/null 2>&1
 if [ $? -eq 0 ]; then
@@ -116,7 +113,7 @@ else
     exit 1
 fi
 
-# 9. Redémarrer ou démarrer l'application avec PM2
+# 8. Redémarrer ou démarrer l'application avec PM2
 log_info "Déploiement avec PM2..."
 
 # Vérifier si PM2 est installé

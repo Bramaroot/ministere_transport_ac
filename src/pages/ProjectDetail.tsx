@@ -1,8 +1,6 @@
 import { ArrowLeft, Calendar, Building2, Plane, Truck, Clock, TrendingUp } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -56,11 +54,9 @@ const ProjectDetail = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
         <div className="container py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Chargement du projet...</h1>
         </div>
-        <Footer />
       </>
     );
   }
@@ -68,14 +64,12 @@ const ProjectDetail = () => {
   if (error) {
     return (
       <>
-        <Navbar />
         <div className="container py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">{error}</h1>
           <Button onClick={() => navigate("/projets")} variant="outline">
             Retour aux projets
           </Button>
         </div>
-        <Footer />
       </>
     );
   }
@@ -83,14 +77,12 @@ const ProjectDetail = () => {
   if (!project) {
     return (
       <>
-        <Navbar />
         <div className="container py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Projet non trouvé</h1>
           <Button onClick={() => navigate("/projets")} variant="outline">
             Retour aux projets
           </Button>
         </div>
-        <Footer />
       </>
     );
   }
@@ -99,7 +91,6 @@ const ProjectDetail = () => {
 
   return (
     <>
-      <Navbar />
       <PageBanner
         title={project.title}
         description={project.description || "Description du projet"}
@@ -227,8 +218,6 @@ const ProjectDetail = () => {
           </div>
         </div>
       </div>
-
-      <Footer />
     </>
   );
 };
