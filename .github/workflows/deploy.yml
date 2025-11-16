@@ -12,7 +12,7 @@ jobs:
 
     environment:
       name: production
-      url: https://transports.gouv.ne
+      url: http://transports.gouv.ne
 
     steps:
       - name: Checkout code
@@ -40,7 +40,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
-            echo "🚀 Starting deployment to transports.gouv.ne..."
+            echo " Starting deployment to transports.gouv.ne..."
 
             # Navigation vers le répertoire du projet
             cd /home/ansi/websites/transports.gouv.ne
