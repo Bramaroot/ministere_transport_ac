@@ -12,7 +12,7 @@ jobs:
 
     environment:
       name: production
-      url: http://transports.gouv.ne
+      url: http://www.transports.gouv.ne
 
     steps:
       - name: Checkout code
