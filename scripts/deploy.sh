@@ -71,8 +71,8 @@ if [ ! -d "server/dist" ]; then
 fi
 
 # 4. Vérifier la configuration PM2
-if [ ! -f "ecosystem.config.js" ]; then
-    log_error "Le fichier ecosystem.config.js n'existe pas."
+if [ ! -f "ecosystem.config.cjs" ]; then
+    log_error "Le fichier ecosystem.config.cjs n'existe pas."
     exit 1
 fi
 
@@ -128,10 +128,10 @@ fi
 # Vérifier si l'application est déjà en cours d'exécution
 if pm2 list | grep -q "mtac-backend"; then
     log_info "Rechargement de l'application..."
-    pm2 reload ecosystem.config.js --env production
+    pm2 reload ecosystem.config.cjs --env production
 else
     log_info "Démarrage de l'application..."
-    pm2 start ecosystem.config.js --env production
+    pm2 start ecosystem.config.cjs --env production
 fi
 
 # Sauvegarder la configuration PM2

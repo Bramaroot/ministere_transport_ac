@@ -23,16 +23,16 @@ const Navbar = () => {
       title: "Accueil",
       path: "/",
     },
-    {
-      title: "À Propos",
-      path: "/about",
-      submenu: [
-        { title: "Organigramme", path: "/about/organigramme" },
-        { title: "Message du Ministre", path: "/about/message-ministre" },
-        { title: "Missions", path: "/about/missions" },
-        { title: "Directions", path: "/about/directions" }
-      ],
-    },
+    // {
+    //   title: "À Propos",
+    //   path: "/about",
+    //   submenu: [
+    //     { title: "Organigramme", path: "/about/organigramme" },
+    //     { title: "Message du Ministre", path: "/about/message-ministre" },
+    //     { title: "Missions", path: "/about/missions" },
+    //     { title: "Directions", path: "/about/directions" }
+    //   ],
+    // },
     {
       title: "Actualités",
       path: "/actualites",
@@ -143,6 +143,22 @@ const Navbar = () => {
                   et de l'Aviation Civile
                 </div>
               </div>
+              <div className="md:hidden">
+                <div
+                  className={`font-bold text-xs leading-tight transition-colors ${
+                    isScrolled ? "text-white" : "text-[#FF8C00]"
+                  }`}
+                >
+                  Ministère des Transports
+                </div>
+                <div
+                  className={`text-xs leading-tight font-bold transition-colors ${
+                    isScrolled ? "text-white/80" : "text-[#00A651]"
+                  }`}
+                >
+                  et de l'Aviation Civile
+                </div>
+              </div>
             </Link>
 
             {/* Desktop Navigation */}
@@ -187,22 +203,6 @@ const Navbar = () => {
 
             {/* Actions */}
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full"
-                onClick={() => {
-                  const searchInput = prompt("Rechercher dans les services du Ministère:");
-                  if (searchInput) {
-                    window.location.href = `/search?q=${encodeURIComponent(
-                      searchInput
-                    )}`;
-                  }
-                }}
-              >
-                <Search className="w-5 h-5" />
-              </Button>
-
               <Button
                 variant="ghost"
                 size="icon"

@@ -185,9 +185,9 @@ server {
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
     gzip_min_length 1000;
 
-    # Logs
-    access_log /home/ansi/websites/transports.gouv.ne/logs/nginx-access.log;
-    error_log /home/ansi/websites/transports.gouv.ne/logs/nginx-error.log;
+    # Logs (utilisation des logs par défaut de nginx)
+    access_log /var/log/nginx/transports-access.log;
+    error_log /var/log/nginx/transports-error.log;
 
     # Frontend - SPA routing (Serveur React)
     location / {
@@ -287,7 +287,7 @@ sudo systemctl enable nginx
 cd /home/ansi/websites/transports.gouv.ne
 
 # Démarrer avec PM2
-pm2 start ecosystem.config.js --env production
+pm2 start ecosystem.config.cjs --env production
 
 # Sauvegarder la configuration PM2
 pm2 save
@@ -356,8 +356,8 @@ sudo nginx -t && sudo systemctl reload nginx
 pm2 logs mtac-backend
 
 # Logs Nginx
-sudo tail -f /var/log/nginx/mtac-access.log
-sudo tail -f /var/log/nginx/mtac-error.log
+sudo tail -f /var/log/nginx/transports-access.log
+sudo tail -f /var/log/nginx/transports-error.log
 
 # Logs PM2
 cat logs/pm2-error.log

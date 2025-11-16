@@ -22,7 +22,7 @@ Status : **PRÊT POUR LE DÉPLOIEMENT** ✅
 
 ### 2. ✅ Configuration PM2
 
-#### Fichier ecosystem.config.js
+#### Fichier ecosystem.config.cjs
 ```javascript
 ✅ Présent et configuré
 ✅ Port: 4000 (production)
@@ -91,7 +91,7 @@ Status : **PRÊT POUR LE DÉPLOIEMENT** ✅
 ✅ "build:all": "npm run build && npm run build:server"
 ✅ "start": "node server/dist/index.js"
 ✅ "deploy": "bash scripts/deploy.sh"
-✅ "pm2:start": "pm2 start ecosystem.config.js --env production"
+✅ "pm2:start": "pm2 start ecosystem.config.cjs --env production"
 ✅ "pm2:stop": "pm2 stop mtac-backend"
 ✅ "pm2:restart": "pm2 restart mtac-backend"
 ✅ "pm2:logs": "pm2 logs mtac-backend"
@@ -146,7 +146,7 @@ Status : **PRÊT POUR LE DÉPLOIEMENT** ✅
 ├── logs/                        ✅ Logs PM2 (sera créé)
 ├── .env                         ⚠️ À configurer sur serveur
 ├── .env.exemple                 ✅ Template présent
-├── ecosystem.config.js          ✅ Config PM2
+├── ecosystem.config.cjs          ✅ Config PM2
 ├── package.json                 ✅ Scripts configurés
 ├── DEPLOYMENT.md                ✅ Documentation
 └── scripts/deploy.sh            ✅ Script de déploiement
@@ -167,7 +167,7 @@ Status : **PRÊT POUR LE DÉPLOIEMENT** ✅
 - ✅ SPA routing : `try_files $uri /index.html`
 - ✅ Headers de sécurité
 - ✅ Gzip compression
-- ✅ Logs : `/home/ansi/websites/transports.gouv.ne/logs/nginx-*.log`
+- ✅ Logs : `/var/log/nginx/transports-*.log` (logs par défaut nginx)
 
 ## 🔍 Tests de Compilation
 
@@ -208,7 +208,7 @@ Status : **PRÊT POUR LE DÉPLOIEMENT** ✅
 
 2. **Créer les répertoires nécessaires**
    ```bash
-   mkdir -p logs
+   mkdir -p logs  # Pour les logs PM2 uniquement
    mkdir -p server/uploads/{news,avatars,events,projects}
    mkdir -p server/private_uploads/{temp,permis_international}
    ```
@@ -232,7 +232,7 @@ npm install
 npm run build:all
 
 # 4. Démarrer avec PM2
-pm2 start ecosystem.config.js --env production
+pm2 start ecosystem.config.cjs --env production
 pm2 save
 pm2 startup  # Suivre les instructions
 
@@ -275,7 +275,7 @@ Tous les éléments critiques sont en place :
 1. **Sur le serveur** : Suivre le guide dans `DEPLOYMENT.md`
 2. **Configurer** : Variables d'environnement dans `.env`
 3. **Build** : `npm run build:all`
-4. **Déployer** : `pm2 start ecosystem.config.js --env production`
+4. **Déployer** : `pm2 start ecosystem.config.cjs --env production`
 5. **Vérifier** : `curl https://transports.gouv.ne/health`
 
 ### 🎉 Conclusion

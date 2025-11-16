@@ -21,7 +21,7 @@ Toutes les corrections nécessaires ont été apportées pour préparer votre pr
 
 ### 2. ✅ Configuration PM2 Créée
 
-**Fichier** : `ecosystem.config.js`
+**Fichier** : `ecosystem.config.cjs`
 
 **Contenu** :
 - Configuration en mode cluster (2 instances)
@@ -142,7 +142,7 @@ npm run deploy
 │   └── private_uploads/         # Uploads protégés (API les sert)
 ├── logs/                        # Logs PM2
 ├── .env                         # Variables d'environnement
-├── ecosystem.config.js          # Configuration PM2
+├── ecosystem.config.cjs          # Configuration PM2
 ├── package.json                 # Dépendances et scripts
 └── DEPLOYMENT.md                # Documentation de déploiement
 ```
@@ -207,7 +207,7 @@ sudo systemctl reload nginx
 sudo npm install -g pm2
 
 # Démarrer l'application
-pm2 start ecosystem.config.js --env production
+pm2 start ecosystem.config.cjs --env production
 
 # Sauvegarder
 pm2 save

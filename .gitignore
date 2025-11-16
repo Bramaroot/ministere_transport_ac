@@ -57,3 +57,10 @@ Thumbs.db
 # Documentation (AI-generated)
 GEMINI.md
 CLAUDE.md
+
+# Documentation (Project Specific)
+COMMANDES_SERVEUR.md
+DEPLOIEMENT_READY.md
+DEPLOYMENT.md
+GUIDE_SERVEUR.md
+VERIFICATION_FINALE.md
