@@ -5,6 +5,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import rateLimit from 'express-rate-limit';
 
 // Import des routes
 import newsRoutes from './routes/newsRoutes.js';
@@ -32,6 +33,7 @@ const __dirname = path.dirname(__filename);
 
 // Initialisation de l'application Express
 const app = express();
+app.set('trust proxy', 1); // Important pour express-rate-limit derrière un proxy
 const port = process.env.PORT || 3001;
 
 // Fonction pour créer les répertoires d'upload s'ils n'existent pas
@@ -86,11 +88,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
-import rateLimit from 'express-rate-limit';
-
-// ... (autres imports)
-
-// ... (après la ligne app.use(cookieParser()))
 
 app.use(express.json()); // Pour parser les requêtes JSON
 app.use(cookieParser()); // Pour parser les cookies
