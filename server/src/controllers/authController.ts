@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
-import pool from '../db';
-import { generateAuthToken } from '../middleware/auth';
-import { signAccessToken, signRefreshToken, verifyRefresh } from '../auth/tokens';
-import { saveRefresh, findRefresh, replaceRefresh, revokeRefresh } from '../auth/refreshStore';
-import { setRefreshCookie, clearRefreshCookie } from '../auth/cookies';
+import pool from '../db.js';
+import { generateAuthToken } from '../middleware/auth.js';
+import { signAccessToken, signRefreshToken, verifyRefresh } from '../auth/tokens.js';
+import { saveRefresh, findRefresh, replaceRefresh, revokeRefresh } from '../auth/refreshStore.js';
+import { setRefreshCookie, clearRefreshCookie } from '../auth/cookies.js';
 
 // Configuration du transporteur email
 const transporter = nodemailer.createTransport({

@@ -7,9 +7,9 @@ import {
   deleteProject,
   getProjectStats,
   uploadProjectImage
-} from '../controllers/projectController';
-import { checkAuth } from '../middleware/auth';
-import { uploadProjectImage as uploadProjectMiddleware } from '../middleware/upload';
+} from '../controllers/projectController.js';
+import { checkAuth } from '../middleware/auth.js';
+import { uploadProjectImage as uploadProjectMiddleware } from '../middleware/upload.js';
 
 const router = Router();
 

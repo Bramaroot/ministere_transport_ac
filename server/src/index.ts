@@ -7,21 +7,21 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 
 // Import des routes
-import newsRoutes from './routes/newsRoutes';
-import authRoutes from './routes/authRoutes';
-import userRoutes from './routes/userRoutes';
-import profileRoutes from './routes/profileRoutes';
-import uploadRoutes from './routes/uploadRoutes';
-import projectRoutes from './routes/projectRoutes';
-import eventRoutes from './routes/eventRoutes';
-import tenderRoutes from './routes/tenderRoutes';
-import statsRoutes from './routes/statsRoutes';
-import serviceRoutes from './routes/serviceRoutes';
-import adminServiceRoutes from './routes/adminServiceRoutes';
-import privateUploadsRoutes from './routes/privateUploadsRoutes';
+import newsRoutes from './routes/newsRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
+import eventRoutes from './routes/eventRoutes.js';
+import tenderRoutes from './routes/tenderRoutes.js';
+import statsRoutes from './routes/statsRoutes.js';
+import serviceRoutes from './routes/serviceRoutes.js';
+import adminServiceRoutes from './routes/adminServiceRoutes.js';
+import privateUploadsRoutes from './routes/privateUploadsRoutes.js';
 
 // Import de la connexion à la base de données
-import pool from './db';
+import pool from './db.js';
 
 // Charger les variables d'environnement
 dotenv.config();

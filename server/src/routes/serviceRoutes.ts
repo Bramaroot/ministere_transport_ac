@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { submitPermisInternational, getPermisInternationalStatus } from '../controllers/serviceController';
-import { uploadPermisInternational } from '../middleware/upload';
+import { submitPermisInternational, getPermisInternationalStatus } from '../controllers/serviceController.js';
+import { uploadPermisInternational } from '../middleware/upload.js';
 
 const router = Router();
 

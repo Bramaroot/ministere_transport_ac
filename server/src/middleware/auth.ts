@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import pool from '../db';
-import { verifyAccess } from '../auth/tokens';
-import { JWT_ACCESS_SECRET } from '../auth/auth.config';
+import pool from '../db.js';
+import { verifyAccess } from '../auth/tokens.js';
+import { JWT_ACCESS_SECRET } from '../auth/auth.config.js';
 
 // Interface pour l'utilisateur authentifié
 declare global {

@@ -11,8 +11,8 @@ import {
   resendAdminOTP,
   refreshToken,
   logout
-} from '../controllers/authController';
-import { checkAuth } from '../middleware/auth';
+} from '../controllers/authController.js';
+import { checkAuth } from '../middleware/auth.js';
 
 const router = Router();
 

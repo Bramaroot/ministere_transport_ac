@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import pool from '../db';
+import pool from '../db.js';
 import bcrypt from 'bcrypt';
 import { validationResult } from 'express-validator';
 

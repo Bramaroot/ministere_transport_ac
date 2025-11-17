@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { checkAuth } from '../middleware/auth';
-import { validateUser, validateUserUpdate } from '../middleware/userValidation';
+import { checkAuth } from '../middleware/auth.js';
+import { validateUser, validateUserUpdate } from '../middleware/userValidation.js';
 import { body } from 'express-validator';
 import {
   getUsers,
@@ -10,7 +10,7 @@ import {
   deleteUser,
   toggleUserStatus,
   updatePassword
-} from '../controllers/userController';
+} from '../controllers/userController.js';
 
 const router = Router();
 

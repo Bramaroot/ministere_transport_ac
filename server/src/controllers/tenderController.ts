@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import db from '../db';
+import db from '../db.js';
 
 // Interface pour les appels d'offres
 interface Tender {

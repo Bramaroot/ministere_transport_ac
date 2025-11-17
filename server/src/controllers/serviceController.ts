@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import pool from '../db';
+import pool from '../db.js';
 import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';

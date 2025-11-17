@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { checkAuth } from '../middleware/auth';
-import { uploadAvatar } from '../middleware/upload';
-import { getProfile, updateProfile, changePassword, uploadAvatar as uploadAvatarController } from '../controllers/profileController';
+import { checkAuth } from '../middleware/auth.js';
+import { uploadAvatar } from '../middleware/upload.js';
+import { getProfile, updateProfile, changePassword, uploadAvatar as uploadAvatarController } from '../controllers/profileController.js';
 
 const router = Router();
 

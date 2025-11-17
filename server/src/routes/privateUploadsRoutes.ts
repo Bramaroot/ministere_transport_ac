@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { checkAuth } from '../middleware/auth';
+import { checkAuth } from '../middleware/auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';

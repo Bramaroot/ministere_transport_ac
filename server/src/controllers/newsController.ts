@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import pool from '../db';
+import pool from '../db.js';
 
 // Get all news articles
 export const getNews = async (req: Request, res: Response) => {

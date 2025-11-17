@@ -1,5 +1,5 @@
 import express from 'express';
-import { checkAuth } from '../middleware/auth';
+import { checkAuth } from '../middleware/auth.js';
 import {
   getAllTenders,
   getTenderById,
@@ -7,7 +7,7 @@ import {
   updateTender,
   deleteTender,
   getPublishedTenders
-} from '../controllers/tenderController';
+} from '../controllers/tenderController.js';
 
 const router = express.Router();
 

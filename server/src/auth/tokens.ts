@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuid } from "uuid";
-import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } from "./auth.config";
+import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } from "./auth.config.js";
 
 export function signAccessToken(payload: object) {
     return jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn: ACCESS_TOKEN_TTL });

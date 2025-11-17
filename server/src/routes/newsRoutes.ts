@@ -5,8 +5,8 @@ import {
   createNews,
   updateNews,
   deleteNews,
-} from '../controllers/newsController';
-import { checkAuth } from '../middleware/auth';
+} from '../controllers/newsController.js';
+import { checkAuth } from '../middleware/auth.js';
 
 const router = Router();
 

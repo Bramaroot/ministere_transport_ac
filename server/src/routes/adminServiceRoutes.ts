@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { checkAuth, checkAdmin } from '../middleware/auth';
-import { 
+import { checkAuth, checkAdmin } from '../middleware/auth.js';
+import {
     getAllPermisInternational,
     getPermisInternationalById,
     updatePermisInternationalStatus,
     getPrivateDocument
-} from '../controllers/serviceController';
+} from '../controllers/serviceController.js';
 
 const router = Router();
 

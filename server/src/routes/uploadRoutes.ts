@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { uploadSingle } from '../middleware/upload';
-import { checkAuth } from '../middleware/auth';
+import { uploadSingle } from '../middleware/upload.js';
+import { checkAuth } from '../middleware/auth.js';
 
 const router = Router();
 
