@@ -18,20 +18,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Build frontend and backend
-        run: npm run build:all
-        env:
-          NODE_ENV: production
-
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -56,6 +42,7 @@ jobs:
             # Installation des dépendances
             echo " Installing dependencies..."
             npm ci --legacy-peer-deps --production=false
+            npm install --build-from-source sharp
 
             # Build du frontend et du backend
             echo "🔨 Building frontend and backend..."
