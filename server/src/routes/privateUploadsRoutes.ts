@@ -9,10 +9,13 @@ const __dirname = path.dirname(__filename);
 
 const router = Router();
 
+// Middleware d'authentification pour toutes les routes de ce router
+router.use(checkAuth);
+
 // Route protégée pour servir les fichiers privés
-router.get('/*', checkAuth, (req, res) => {
-  // Extraire le chemin du fichier depuis l'URL
-  const filePath = req.params[0];
+router.use((req, res) => {
+  // Extraire le chemin complet depuis req.url
+  const filePath = req.url.startsWith('/') ? req.url.slice(1) : req.url;
   const absolutePath = path.join(__dirname, '../../private_uploads', filePath);
 
   // Vérifier que le fichier existe
