@@ -1,6 +1,4 @@
 import { useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -140,8 +138,6 @@ const PermisInternational = () => {
   if (submitSuccess) {
     return (
       <div className="min-h-screen">
-        <Navbar />
-
         <PageBanner
           title="Demande de Permis International"
           description="Votre demande a été soumise avec succès"
@@ -181,15 +177,12 @@ const PermisInternational = () => {
             </div>
           </div>
         </main>
-
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen">
-      <Navbar />
 
       <PageBanner
         title="Demande de Permis International"
@@ -550,8 +543,6 @@ const PermisInternational = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,8 +57,6 @@ const AutorisationTransportMarchandises = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
       <PageBanner 
         title="Autorisation de Transport de Marchandises"
         description="Obtenez l'autorisation de transporter des marchandises"
@@ -205,8 +201,6 @@ const AutorisationTransportMarchandises = () => {
           </section>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

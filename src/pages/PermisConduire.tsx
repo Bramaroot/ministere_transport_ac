@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -106,8 +104,6 @@ const PermisConduire = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
       <PageBanner 
         title="Demande de Permis de Conduire"
         description="Obtenez votre permis de conduire national"
@@ -619,8 +615,6 @@ const PermisConduire = () => {
           </Card>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

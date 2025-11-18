@@ -1,7 +1,5 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,7 +48,6 @@ const TenderDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <main className="py-8">
           <div className="container max-w-6xl">
             <div className="text-center py-12">
@@ -59,7 +56,6 @@ const TenderDetail = () => {
             </div>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -67,7 +63,6 @@ const TenderDetail = () => {
   if (error || !tender) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <main className="py-8">
           <div className="container max-w-6xl">
             <div className="text-center py-12">
@@ -80,15 +75,12 @@ const TenderDetail = () => {
             </div>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
       <main className="py-8">
         <div className="container max-w-6xl">
           <Link to="/appels-offres">
@@ -159,8 +151,6 @@ const TenderDetail = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

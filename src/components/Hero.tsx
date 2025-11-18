@@ -71,7 +71,7 @@ const Hero = () => {
             </Button>
 
             <Button size="lg" variant="outline" className="bg-card/50 backdrop-blur">
-              <Link to="/actualites/appels-offres" className="flex items-center gap-2">
+              <Link to="/projets" className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
                 Nos réalisations
               </Link>

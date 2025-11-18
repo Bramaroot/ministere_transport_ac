@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,8 +14,6 @@ const Publications = () => {
    
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
       <PageBanner 
         title="Publications"
         description="Accédez aux publications officielles du Ministère des Transports et de l'Aviation Civile"
@@ -51,8 +47,6 @@ const Publications = () => {
  
          </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

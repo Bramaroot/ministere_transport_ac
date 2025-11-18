@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,8 +49,6 @@ const DemandeHomologationSimple = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
       <PageBanner 
         title="Demande d'Homologation (Simple)"
         description="Attribution d'un numéro de châssis pour première immatriculation"
@@ -178,8 +174,6 @@ const DemandeHomologationSimple = () => {
           </section>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

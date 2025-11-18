@@ -9,8 +9,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { submitPermisInternational } from '@/services/serviceService';
 import PageBanner from '@/components/PageBanner';
 import { AxiosError } from 'axios';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import jsPDF from 'jspdf';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -122,7 +120,6 @@ const DemandePermisInternational: React.FC = () => {
 
   return (
     <>
-      <Navbar />
       <PageBanner title="Demande de Permis de Conduire International" description="Remplissez les informations ci-dessous et joignez les documents requis." />
       <div className="container mx-auto py-10">
         <Card className="max-w-4xl mx-auto">
@@ -179,7 +176,6 @@ const DemandePermisInternational: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-      <Footer />
     </>
   );
 };

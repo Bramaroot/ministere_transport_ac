@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,8 +11,6 @@ const MentionsLegales = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
       <main>
         <PageBanner 
           title="Mentions Légales"
@@ -188,8 +184,6 @@ const MentionsLegales = () => {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 };

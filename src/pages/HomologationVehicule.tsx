@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -113,8 +111,6 @@ const HomologationVehicule = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
       <PageBanner 
         title="Demande d'Homologation de Véhicule"
         description="Homologuez votre véhicule importé selon les normes nigériennes"
@@ -710,8 +706,6 @@ const HomologationVehicule = () => {
           </Card>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

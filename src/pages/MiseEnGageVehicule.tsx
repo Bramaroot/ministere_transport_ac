@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,8 +56,6 @@ const MiseEnGageVehicule = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
       <PageBanner 
         title="Mise en Gage de Véhicule"
         description="Mettez votre véhicule en gage pour obtenir un prêt auprès d'une institution financière"
@@ -198,8 +194,6 @@ const MiseEnGageVehicule = () => {
           </section>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,8 +49,6 @@ const CarteGriseInternationale = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
       <PageBanner 
         title="Carte Grise Internationale"
         description="Obtenez votre carte grise internationale pour votre véhicule"
@@ -178,8 +174,6 @@ const CarteGriseInternationale = () => {
           </section>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

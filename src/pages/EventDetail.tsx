@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -76,12 +74,10 @@ const EventDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="container py-16 text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
           <p className="mt-4 text-muted-foreground">Chargement de l'événement...</p>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -89,7 +85,6 @@ const EventDetail = () => {
   if (error || !event) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="container py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Événement non trouvé</h1>
           <p className="text-muted-foreground mb-6">{error}</p>
@@ -97,16 +92,13 @@ const EventDetail = () => {
             Retour aux événements
           </Button>
         </div>
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
-      <PageBanner 
+      <PageBanner
         title={event.titre}
         description={event.description || "Détails de l'événement"}
       />
@@ -191,8 +183,6 @@ const EventDetail = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

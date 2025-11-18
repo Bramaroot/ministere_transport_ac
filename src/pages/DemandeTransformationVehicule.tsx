@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,8 +56,6 @@ const DemandeTransformationVehicule = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
       <PageBanner 
         title="Demande de Transformation de Véhicule"
         description="Transformation de véhicules déjà homologués (ex: Toyota Land Cruiser 2021 → 2023)"
@@ -204,8 +200,6 @@ const DemandeTransformationVehicule = () => {
           </section>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

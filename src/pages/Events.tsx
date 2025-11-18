@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -104,21 +102,17 @@ const Events = () => {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="container py-16 text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
           <p className="mt-4 text-muted-foreground">Chargement des événements...</p>
         </div>
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      
-      <PageBanner 
+      <PageBanner
         title="Événements"
         description="Découvrez les événements du Ministère des Transports et de l'Aviation Civile"
       />
@@ -306,8 +300,6 @@ const Events = () => {
           )}
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

@@ -104,30 +104,18 @@ const Footer = () => {
         <div className="border-t border-primary-light/30 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex gap-4">
-              <Link
-                to="#"
-                className="p-2 rounded-full text-white bg-secondary text-primary hover:bg-secondary-light transition-colors"
-              >
+              <div className="p-2 rounded-full text-white bg-secondary/50 cursor-not-allowed opacity-50">
                 <Facebook className="w-5 h-5" />
-              </Link>
-              <Link
-                to="#"
-                className="p-2 rounded-full text-white bg-secondary text-primary hover:bg-secondary-light transition-colors"
-              >
+              </div>
+              <div className="p-2 rounded-full text-white bg-secondary/50 cursor-not-allowed opacity-50">
                 <Twitter className="w-5 h-5" />
-              </Link>
-              <Link
-                to="#"
-                className="p-2 rounded-full text-white bg-secondary text-primary hover:bg-secondary-light transition-colors"
-              >
+              </div>
+              <div className="p-2 rounded-full text-white bg-secondary/50 cursor-not-allowed opacity-50">
                 <Linkedin className="w-5 h-5" />
-              </Link>
-              <Link
-                to="#"
-                className="p-2 rounded-full text-white bg-secondary text-primary hover:bg-secondary-light transition-colors"
-              >
+              </div>
+              <div className="p-2 rounded-full text-white bg-secondary/50 cursor-not-allowed opacity-50">
                 <Youtube className="w-5 h-5" />
-              </Link>
+              </div>
             </div>
 
             <div className="flex flex-wrap justify-center gap-4 text-sm text-primary-foreground/80">
