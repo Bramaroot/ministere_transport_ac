@@ -34,10 +34,8 @@ class AuthService {
   // ANCIEN FLUX: Générer un token admin pour le développement
   async generateAdminToken(): Promise<string> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/admin-token`, {
-        credentials: 'include' // Important pour les cookies
-      });
-      const data: AuthResponse = await response.json();
+      const response = await api.get('/auth/admin-token');
+      const data: AuthResponse = response.data;
       if (data.success && data.token) {
         this.token = data.token;
         localStorage.setItem('admin_token', data.token);

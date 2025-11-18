@@ -10,7 +10,7 @@ import {
 const router = Router();
 
 // Appliquer les middlewares d'authentification et d'admin à toutes les routes de ce fichier
-// router.use(checkAuth, checkAdmin);
+router.use(checkAuth, checkAdmin);
 
 // Route pour lister toutes les demandes
 router.get('/demandes/permis-international', getAllPermisInternational);

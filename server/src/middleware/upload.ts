@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
 import { Request } from 'express';
+import { fileTypeFromBuffer } from 'file-type'; // New import
 
 // Configuration du stockage des fichiers pour les actualités
 const newsStorage = multer.diskStorage({
@@ -138,9 +139,13 @@ const privateTempStorage = multer.diskStorage({
 });
 
 // Filtre pour accepter documents (PDF) et images (JPG, PNG)
-const documentAndImageFileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const documentAndImageFileFilter = async (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
-  if (allowedMimes.includes(file.mimetype)) {
+  
+  // Use file-type to determine the actual file type from its buffer
+  const fileType = await fileTypeFromBuffer(file.buffer);
+
+  if (fileType && allowedMimes.includes(fileType.mime)) {
     cb(null, true);
   } else {
     cb(new Error('Type de fichier non autorisé. Seuls les PDF, JPG, et PNG sont acceptés.'));

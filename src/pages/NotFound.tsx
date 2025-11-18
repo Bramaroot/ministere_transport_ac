@@ -1,7 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Home, Search } from "lucide-react";
 
@@ -14,7 +12,6 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
       
       <main className="flex-1 flex items-center justify-center bg-muted/30">
         <div className="container text-center py-20 animate-fade-in">
@@ -43,7 +40,6 @@ const NotFound = () => {
         </div>
       </main>
       
-      <Footer />
     </div>
   );
 };

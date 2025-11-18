@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3001/api';
+import { api } from '@/api';
 
 export interface Event {
   id: number;
@@ -50,20 +50,15 @@ export interface SingleEventResponse {
 export const getEvents = async (filters: EventFilters = {}): Promise<EventResponse> => {
   try {
     const params = new URLSearchParams();
-    
+
     if (filters.page) params.append('page', filters.page.toString());
     if (filters.limit) params.append('limit', filters.limit.toString());
     if (filters.type) params.append('type', filters.type);
     if (filters.statut) params.append('statut', filters.statut);
     if (filters.search) params.append('search', filters.search);
 
-    const response = await fetch(`${API_BASE_URL}/events?${params.toString()}`);
-    
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.get(`/events?${params.toString()}`);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des événements:', error);
     throw error;
@@ -73,13 +68,8 @@ export const getEvents = async (filters: EventFilters = {}): Promise<EventRespon
 // Récupérer un événement par ID
 export const getEventById = async (id: number): Promise<SingleEventResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/events/${id}`);
-    
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.get(`/events/${id}`);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération de l\'événement:', error);
     throw error;
@@ -89,13 +79,8 @@ export const getEventById = async (id: number): Promise<SingleEventResponse> => 
 // Récupérer les événements à venir
 export const getUpcomingEvents = async (limit: number = 5): Promise<EventResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/events/upcoming?limit=${limit}`);
-    
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.get(`/events/upcoming?limit=${limit}`);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des événements à venir:', error);
     throw error;
@@ -105,20 +90,8 @@ export const getUpcomingEvents = async (limit: number = 5): Promise<EventRespons
 // Créer un nouvel événement
 export const createEvent = async (eventData: Partial<Event>, token: string): Promise<SingleEventResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/events`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(eventData)
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.post('/events', eventData);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la création de l\'événement:', error);
     throw error;
@@ -128,20 +101,8 @@ export const createEvent = async (eventData: Partial<Event>, token: string): Pro
 // Mettre à jour un événement
 export const updateEvent = async (id: number, eventData: Partial<Event>, token: string): Promise<SingleEventResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/events/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(eventData)
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.put(`/events/${id}`, eventData);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la mise à jour de l\'événement:', error);
     throw error;
@@ -151,18 +112,8 @@ export const updateEvent = async (id: number, eventData: Partial<Event>, token: 
 // Supprimer un événement
 export const deleteEvent = async (id: number, token: string): Promise<{ success: boolean; message: string }> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/events/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.delete(`/events/${id}`);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la suppression de l\'événement:', error);
     throw error;

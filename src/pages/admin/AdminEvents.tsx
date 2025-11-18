@@ -13,7 +13,6 @@ import { EventForm } from "@/components/EventForm";
 import { Calendar, Clock, MapPin, Users, Search, Filter, Plus, Edit, Trash2, Eye, Upload } from "lucide-react";
 import { getEvents, getEventById, createEvent, updateEvent, deleteEvent, Event, EventFilters, formatEventDate, formatEventTime, getEventTypeLabel, getEventStatusLabel } from "@/services/eventService";
 import { uploadEventImage } from "@/services/uploadService";
-import { testAuthentication, forceLogin } from "@/utils/authTest";
 import ImageUpload from "@/components/ImageUpload";
 
 const AdminEvents = () => {
@@ -275,20 +274,6 @@ const AdminEvents = () => {
           <p className="text-muted-foreground">Gérez les événements du ministère</p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => {
-              testAuthentication();
-              if (!localStorage.getItem('token')) {
-                forceLogin();
-                alert('Token de test configuré !');
-              }
-            }}
-            title="Tester l'authentification"
-          >
-            🔧 Test Auth
-          </Button>
           <Button onClick={handleAddEvent}>
             <Plus className="w-4 h-4 mr-2" />
             Nouvel événement

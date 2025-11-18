@@ -1,5 +1,5 @@
 // Service pour la gestion des projets
-const API_BASE_URL = '/api/projects';
+import { api } from '@/api';
 
 export interface Project {
   id: string;
@@ -27,13 +27,12 @@ export interface ProjectStats {
 // Récupérer tous les projets
 export const getAllProjects = async (): Promise<Project[]> => {
   try {
-    const response = await fetch(API_BASE_URL);
-    const data = await response.json();
-    
-    if (data.success) {
-      return data.data;
+    const response = await api.get('/projects');
+
+    if (response.data.success) {
+      return response.data.data;
     } else {
-      throw new Error(data.message || 'Erreur lors de la récupération des projets');
+      throw new Error(response.data.message || 'Erreur lors de la récupération des projets');
     }
   } catch (error) {
     console.error('Erreur lors de la récupération des projets:', error);
@@ -44,13 +43,12 @@ export const getAllProjects = async (): Promise<Project[]> => {
 // Récupérer un projet par ID
 export const getProjectById = async (id: string): Promise<Project> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
-    const data = await response.json();
-    
-    if (data.success) {
-      return data.data;
+    const response = await api.get(`/projects/${id}`);
+
+    if (response.data.success) {
+      return response.data.data;
     } else {
-      throw new Error(data.message || 'Projet non trouvé');
+      throw new Error(response.data.message || 'Projet non trouvé');
     }
   } catch (error) {
     console.error('Erreur lors de la récupération du projet:', error);
@@ -61,22 +59,12 @@ export const getProjectById = async (id: string): Promise<Project> => {
 // Créer un nouveau projet
 export const createProject = async (project: Omit<Project, 'created_at' | 'updated_at'>): Promise<Project> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(API_BASE_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(project)
-    });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      return data.data;
+    const response = await api.post('/projects', project);
+
+    if (response.data.success) {
+      return response.data.data;
     } else {
-      throw new Error(data.message || 'Erreur lors de la création du projet');
+      throw new Error(response.data.message || 'Erreur lors de la création du projet');
     }
   } catch (error) {
     console.error('Erreur lors de la création du projet:', error);
@@ -87,22 +75,12 @@ export const createProject = async (project: Omit<Project, 'created_at' | 'updat
 // Mettre à jour un projet
 export const updateProject = async (id: string, project: Partial<Project>): Promise<Project> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(project)
-    });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      return data.data;
+    const response = await api.put(`/projects/${id}`, project);
+
+    if (response.data.success) {
+      return response.data.data;
     } else {
-      throw new Error(data.message || 'Erreur lors de la mise à jour du projet');
+      throw new Error(response.data.message || 'Erreur lors de la mise à jour du projet');
     }
   } catch (error) {
     console.error('Erreur lors de la mise à jour du projet:', error);
@@ -113,18 +91,10 @@ export const updateProject = async (id: string, project: Partial<Project>): Prom
 // Supprimer un projet
 export const deleteProject = async (id: string): Promise<void> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.message || 'Erreur lors de la suppression du projet');
+    const response = await api.delete(`/projects/${id}`);
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Erreur lors de la suppression du projet');
     }
   } catch (error) {
     console.error('Erreur lors de la suppression du projet:', error);
@@ -135,13 +105,12 @@ export const deleteProject = async (id: string): Promise<void> => {
 // Récupérer les statistiques des projets
 export const getProjectStats = async (): Promise<ProjectStats> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/stats`);
-    const data = await response.json();
-    
-    if (data.success) {
-      return data.data;
+    const response = await api.get('/projects/stats');
+
+    if (response.data.success) {
+      return response.data.data;
     } else {
-      throw new Error(data.message || 'Erreur lors de la récupération des statistiques');
+      throw new Error(response.data.message || 'Erreur lors de la récupération des statistiques');
     }
   } catch (error) {
     console.error('Erreur lors de la récupération des statistiques:', error);

@@ -27,21 +27,21 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  { title: "Tableau de Bord", url: "/admin", icon: LayoutDashboard },
-  { title: "Actualités", url: "/admin/news", icon: FileText },
-  { title: "Événements", url: "/admin/events", icon: Calendar },
-  { title: "Appels d'Offres", url: "/admin/tenders", icon: FileEdit },
-  { title: "Projets", url: "/admin/projects", icon: Building2 },
+  { title: "Tableau de Bord", url: "/mtac-dash-admin", icon: LayoutDashboard },
+  { title: "Actualités", url: "/mtac-dash-admin/news", icon: FileText },
+  { title: "Événements", url: "/mtac-dash-admin/events", icon: Calendar },
+  { title: "Appels d'Offres", url: "/mtac-dash-admin/tenders", icon: FileEdit },
+  { title: "Projets", url: "/mtac-dash-admin/projects", icon: Building2 },
   {
     title: "E-Services",
-    url: "/admin/e-services",
+    url: "/mtac-dash-admin/e-services",
     icon: Globe,
     submenu: [
-      { title: "Demandes de Permis", url: "/admin/demandes/permis-international" },
+      { title: "Demandes de Permis", url: "/mtac-dash-admin/demandes/permis-international" },
     ]
   },
-  { title: "Utilisateurs", url: "/admin/users", icon: Users },
-  { title: "Mon Profil", url: "/admin/profile", icon: Users },
+  { title: "Utilisateurs", url: "/mtac-dash-admin/users", icon: Users },
+  { title: "Mon Profil", url: "/mtac-dash-admin/profile", icon: Users },
 ];
 
 export function AdminSidebar() {

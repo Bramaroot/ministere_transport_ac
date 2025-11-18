@@ -12,11 +12,17 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const pool = new Pool({
-  user: process.env.DB_USER || "mtacadmin",
+  user: process.env.DB_USER || "postgres",
   host: process.env.DB_HOST || "localhost",
-  database: process.env.DB_NAME || "mtac_bd",
-  password: process.env.DB_PASSWORD || "MtacAdmin@2025@",
+  database: process.env.DB_NAME || "ministere_transports_niger",
+  password: process.env.DB_PASSWORD || "00000000",
   port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432,
+
+  // user: process.env.DB_USER,
+  // host: process.env.DB_HOST,
+  // database: process.env.DB_NAME,
+  // password: process.env.DB_PASSWORD,
+  // port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432,
 });
 
 // Fonction pour initialiser la base de données
@@ -45,26 +51,9 @@ const checkAdminUser = async () => {
     );
 
     if (result.rows.length === 0) {
-      console.log(
-        "Aucun utilisateur admin trouvé. Création d'un admin par défaut..."
+      console.warn(
+        "AVERTISSEMENT: Aucun utilisateur admin trouvé. Veuillez créer un utilisateur admin manuellement."
       );
-      // Le mot de passe sera hashé par le contrôleur utilisateur
-      const hashedPassword = await bcrypt.hash("admin123", 10);
-
-      await client.query(
-        "INSERT INTO utilisateurs (nom_utilisateur, email, mot_de_passe_hash, prenom, nom, role, actif) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-        [
-          "admin",
-          "admin@transport-niger.ne",
-          hashedPassword,
-          "Admin",
-          "Système",
-          "admin",
-          true,
-        ]
-      );
-
-      console.log("Utilisateur admin créé avec succès");
     }
   } catch (err) {
     console.error(

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext'; // Importer useAuth
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -18,6 +19,7 @@ export default function AdminLogin2FA() {
   const [success, setSuccess] = useState('');
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes par défaut
   const navigate = useNavigate();
+  const { login } = useAuth(); // Utiliser le hook d'authentification
 
   // Timer pour l'expiration de l'OTP
   useEffect(() => {
@@ -38,8 +40,6 @@ export default function AdminLogin2FA() {
     setLoading(true);
     setError('');
 
-
-
     try {
       const requestBody = JSON.stringify(otpData);
 
@@ -50,48 +50,25 @@ export default function AdminLogin2FA() {
         body: requestBody
       });
 
-
       if (!response.ok) {
-        const errorText = await response.text();
-        //nsole.error('❌ Contenu de l\'erreur:', errorText);
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      //console.log('📥 Réponse reçue:', data);
 
       if (data.success) {
-        // console.log('✅ Vérification réussie');
-        // console.log('🔑 Access Token reçu:', data.accessToken);
-        // console.log('👤 Utilisateur:', data.user);
+        // Utiliser la fonction login du contexte pour mettre à jour l'état global
+        login(data.accessToken, data.user);
+        
+        // Nettoyer l'email stocké après une connexion réussie
+        localStorage.removeItem('admin_email');
 
-        // Utiliser le nouveau système avec accessToken
-        if (data.accessToken) {
-          // Import setAccessToken from api.ts to set the access token in memory
-          const { setAccessToken } = await import('../api');
-          setAccessToken(data.accessToken);
-        }
-
-        // Garder aussi le token legacy pour compatibilité
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-        }
-
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('isAuthenticated', 'true');
-
-        //console.log('💾 Données stockées dans localStorage');
-        navigate('/admin');
+        navigate('/mtac-dash-admin');
       } else {
-        // console.error('❌ Échec de la vérification:', data.message);
         setError(data.message);
       }
     } catch (error) {
-      //console.error('💥 Erreur lors de la vérification:', error);
-      if (error instanceof Error) {
-        // console.error('💥 Message d\'erreur:', error.message);
-        // console.error('💥 Stack trace:', error.stack);
-      }
       setError('Erreur de vérification: ' + (error instanceof Error ? error.message : 'Erreur inconnue'));
     } finally {
       setLoading(false);

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3001/api';
+import { api } from '@/api';
 
 export interface User {
   id: number;
@@ -46,21 +46,8 @@ export interface UpdateUserData {
 
 export const getUsers = async (): Promise<UserResponse> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/users`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la récupération des utilisateurs');
-    }
-
-    const data = await response.json();
-    return data;
+    const response = await api.get('/users');
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des utilisateurs:', error);
     throw error;
@@ -69,21 +56,8 @@ export const getUsers = async (): Promise<UserResponse> => {
 
 export const getUserById = async (id: number): Promise<SingleUserResponse> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la récupération de l\'utilisateur');
-    }
-
-    const data = await response.json();
-    return data;
+    const response = await api.get(`/users/${id}`);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération de l\'utilisateur:', error);
     throw error;
@@ -92,22 +66,8 @@ export const getUserById = async (id: number): Promise<SingleUserResponse> => {
 
 export const createUser = async (userData: CreateUserData): Promise<SingleUserResponse> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/users`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify(userData),
-    });
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la création de l\'utilisateur');
-    }
-
-    const data = await response.json();
-    return data;
+    const response = await api.post('/users', userData);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la création de l\'utilisateur:', error);
     throw error;
@@ -116,22 +76,8 @@ export const createUser = async (userData: CreateUserData): Promise<SingleUserRe
 
 export const updateUser = async (id: number, userData: UpdateUserData): Promise<SingleUserResponse> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify(userData),
-    });
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la mise à jour de l\'utilisateur');
-    }
-
-    const data = await response.json();
-    return data;
+    const response = await api.put(`/users/${id}`, userData);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
     throw error;
@@ -140,21 +86,8 @@ export const updateUser = async (id: number, userData: UpdateUserData): Promise<
 
 export const deleteUser = async (id: number): Promise<{ success: boolean; message: string }> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la suppression de l\'utilisateur');
-    }
-
-    const data = await response.json();
-    return data;
+    const response = await api.delete(`/users/${id}`);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la suppression de l\'utilisateur:', error);
     throw error;

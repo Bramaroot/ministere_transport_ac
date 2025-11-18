@@ -5,7 +5,6 @@ import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-
   plugins: [
     react(),
     ViteImageOptimizer({
@@ -30,8 +29,8 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: true, // This exposes the server to your network
     proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
+      "/api": {
+        target: "http://localhost:4000",
         changeOrigin: true,
         secure: false,
       },
@@ -44,6 +43,8 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     // Définir NODE_ENV pour le frontend
-    'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
+    "process.env.NODE_ENV": JSON.stringify(
+      mode === "production" ? "production" : "development"
+    ),
   },
 }));

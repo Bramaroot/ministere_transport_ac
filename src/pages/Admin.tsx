@@ -32,7 +32,7 @@ const Admin = () => {
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated");
     if (!isAuthenticated) {
-      navigate("/login");
+      navigate("/mtac-dash-login");
     } else {
       fetchStats();
     }

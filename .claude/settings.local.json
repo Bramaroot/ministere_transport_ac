@@ -6,7 +6,11 @@
       "Bash(npm uninstall:*)",
       "Bash(npm run build:all:*)",
       "Bash(npm install:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(for file in src/services/authService.ts src/services/profileService.ts src/services/uploadService.ts)",
+      "Bash(do echo)",
+      "Bash(echo:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

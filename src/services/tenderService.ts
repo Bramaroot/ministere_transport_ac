@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3001/api';
+import { api } from '@/api';
 
 export interface Tender {
   id: number;
@@ -48,25 +48,15 @@ export interface SingleTenderResponse {
 export const getTenders = async (filters: TenderFilters = {}): Promise<TenderResponse> => {
   try {
     const queryParams = new URLSearchParams();
-    
+
     if (filters.page) queryParams.append('page', filters.page.toString());
     if (filters.limit) queryParams.append('limit', filters.limit.toString());
     if (filters.statut && filters.statut !== 'all') queryParams.append('statut', filters.statut);
     if (filters.categorie && filters.categorie !== 'all') queryParams.append('categorie', filters.categorie);
     if (filters.search) queryParams.append('search', filters.search);
 
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/tenders?${queryParams.toString()}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.get(`/tenders?${queryParams.toString()}`);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des appels d\'offres:', error);
     throw error;
@@ -76,13 +66,8 @@ export const getTenders = async (filters: TenderFilters = {}): Promise<TenderRes
 // Récupérer un appel d'offres par ID
 export const getTenderById = async (id: number): Promise<SingleTenderResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/tenders/${id}`);
-    
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.get(`/tenders/${id}`);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération de l\'appel d\'offres:', error);
     throw error;
@@ -93,18 +78,13 @@ export const getTenderById = async (id: number): Promise<SingleTenderResponse> =
 export const getPublishedTenders = async (filters: TenderFilters = {}): Promise<TenderResponse> => {
   try {
     const queryParams = new URLSearchParams();
-    
+
     if (filters.page) queryParams.append('page', filters.page.toString());
     if (filters.limit) queryParams.append('limit', filters.limit.toString());
     if (filters.categorie && filters.categorie !== 'all') queryParams.append('categorie', filters.categorie);
 
-    const response = await fetch(`${API_BASE_URL}/tenders/published?${queryParams.toString()}`);
-    
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.get(`/tenders/published?${queryParams.toString()}`);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la récupération des appels d\'offres publiés:', error);
     throw error;
@@ -114,20 +94,8 @@ export const getPublishedTenders = async (filters: TenderFilters = {}): Promise<
 // Créer un nouvel appel d'offres
 export const createTender = async (tenderData: Partial<Tender>, token: string): Promise<SingleTenderResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/tenders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(tenderData)
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.post('/tenders', tenderData);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la création de l\'appel d\'offres:', error);
     throw error;
@@ -137,20 +105,8 @@ export const createTender = async (tenderData: Partial<Tender>, token: string): 
 // Mettre à jour un appel d'offres
 export const updateTender = async (id: number, tenderData: Partial<Tender>, token: string): Promise<SingleTenderResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/tenders/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(tenderData)
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.put(`/tenders/${id}`, tenderData);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la mise à jour de l\'appel d\'offres:', error);
     throw error;
@@ -160,18 +116,8 @@ export const updateTender = async (id: number, tenderData: Partial<Tender>, toke
 // Supprimer un appel d'offres
 export const deleteTender = async (id: number, token: string): Promise<{ success: boolean; message: string }> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/tenders/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
-    return await response.json();
+    const response = await api.delete(`/tenders/${id}`);
+    return response.data;
   } catch (error) {
     console.error('Erreur lors de la suppression de l\'appel d\'offres:', error);
     throw error;

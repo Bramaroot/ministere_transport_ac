@@ -4,8 +4,6 @@ import {
   login,
   register,
   getProfile,
-  generateAdminToken,
-  loginAdminSimple,
   loginAdminWithOTP,
   verifyAdminOTP,
   resendAdminOTP,
@@ -45,19 +43,6 @@ router.post(
 
 // Route pour récupérer le profil de l'utilisateur connecté
 router.get('/profile', checkAuth, getProfile);
-
-// Route temporaire pour générer un token admin (développement uniquement)
-router.get('/admin-token', generateAdminToken);
-
-// 🔹 Route de connexion admin simplifiée (sans OTP)
-router.post(
-  '/admin/login',
-  [
-    body('identifiant').notEmpty().withMessage('L\'identifiant est requis'),
-    body('mot_de_passe').notEmpty().withMessage('Le mot de passe est requis')
-  ],
-  loginAdminSimple
-);
 
 // 🔹 Nouvelles routes pour l'authentification 2FA admin
 router.post(

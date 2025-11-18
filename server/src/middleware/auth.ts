@@ -19,7 +19,10 @@ declare global {
 }
 
 // Clé secrète pour signer les tokens JWT legacy
-const JWT_SECRET = process.env.JWT_SECRET || 'votre_clé_secrète_très_longue_et_sécurisée';
+if (!process.env.JWT_SECRET) {
+  throw new Error('FATAL_ERROR: Legacy JWT_SECRET is not defined in environment variables.');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware pour vérifier l'authentification
 export const checkAuth = async (req: Request, res: Response, next: NextFunction) => {

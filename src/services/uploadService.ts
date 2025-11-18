@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3001/api';
+import { api } from '@/api';
 
 export interface UploadResponse {
   success: boolean;
@@ -28,24 +28,13 @@ export const validateImageFile = (file: File) => {
 };
 
 // Upload d'image générique
-export const uploadImage = async (file: File, token: string): Promise<string> => {
+export const uploadImage = async (file: File): Promise<string> => {
   try {
     const formData = new FormData();
     formData.append('image', file);
 
-    const response = await fetch(`${API_BASE_URL}/upload/image`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de l\'upload de l\'image');
-    }
-
-    const data = await response.json();
+    const response = await api.post('/upload/image', formData);
+    const data = response.data;
     if (data.success && data.imageUrl) {
       return data.imageUrl;
     } else {
@@ -60,23 +49,11 @@ export const uploadImage = async (file: File, token: string): Promise<string> =>
 // Upload d'image pour les actualités
 export const uploadNewsImage = async (file: File): Promise<UploadResponse> => {
   try {
-    const token = localStorage.getItem('token');
     const formData = new FormData();
     formData.append('image', file);
 
-    const response = await fetch(`${API_BASE_URL}/upload/image`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de l\'upload de l\'image');
-    }
-
-    const data = await response.json();
+    const response = await api.post('/upload/image', formData);
+    const data = response.data;
     if (data.success) {
       return data;
     } else {
@@ -91,23 +68,11 @@ export const uploadNewsImage = async (file: File): Promise<UploadResponse> => {
 // Upload d'image pour les événements
 export const uploadEventImage = async (eventId: number, file: File): Promise<UploadResponse> => {
   try {
-    const token = localStorage.getItem('token');
     const formData = new FormData();
     formData.append('image', file);
 
-    const response = await fetch(`${API_BASE_URL}/events/${eventId}/upload-image`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de l\'upload de l\'image');
-    }
-
-    const data = await response.json();
+    const response = await api.post(`/events/${eventId}/upload-image`, formData);
+    const data = response.data;
     if (data.success) {
       return data;
     } else {
@@ -122,23 +87,11 @@ export const uploadEventImage = async (eventId: number, file: File): Promise<Upl
 // Upload d'image pour les projets
 export const uploadProjectImage = async (projectId: string, file: File): Promise<UploadResponse> => {
   try {
-    const token = localStorage.getItem('token');
     const formData = new FormData();
     formData.append('image', file);
 
-    const response = await fetch(`${API_BASE_URL}/projects/${projectId}/upload-image`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de l\'upload de l\'image');
-    }
-
-    const data = await response.json();
+    const response = await api.post(`/projects/${projectId}/upload-image`, formData);
+    const data = response.data;
     if (data.success) {
       return data;
     } else {
