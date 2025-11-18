@@ -39,16 +39,16 @@ const Navbar = () => {
       submenu: [
         { title: "Communications", path: "/actualites/communications" },
         { title: "Appels d'Offres", path: "/actualites/appels-offres" },
-        { title: "Événements", path: "/evenements" }
+        { title: "Événements", path: "/evenements" },
       ],
     },
-     
+
     {
       title: "Projets",
       path: "/projets",
       submenu: [
         { title: "Transport Terrestre", path: "/projets/transport-terrestre" },
-        { title: "Aviation Civile", path: "/projets/aviation-civile" }
+        { title: "Aviation Civile", path: "/projets/aviation-civile" },
       ],
     },
 
@@ -66,35 +66,93 @@ const Navbar = () => {
       title: "E-services",
       path: "/e-services",
       submenu: [
-        { title: "Aviation Civile", path: "/e-services", submenu: [
-          { title: "Site ANAC", path: "https://anac-niger.org", external: true }
-        ]},
-        { title: "Permis & Documents", path: "/e-services", submenu: [
-          { title: "Permis International", path: "/e-services/permis-international" },
-          { title: "Carte Grise Internationale", path: "/e-services/carte-grise-internationale" },
-          { title: "Permis de Conduire", path: "/e-services/permis-conduire" }
-        ]},
-        { title: "Homologation", path: "/e-services", submenu: [
-          { title: "Homologation Simple", path: "/e-services/demande-homologation-simple" },
-          { title: "Transformation Véhicule", path: "/e-services/demande-transformation-vehicule" },
-          { title: "Homologation Véhicule", path: "/e-services/homologation-vehicule" }
-        ]},
-        { title: "Autorisations Transport", path: "/e-services", submenu: [
-          { title: "Permis Exploitation Ligne", path: "/e-services/permis-exploitation-ligne-transport" },
-          { title: "Transport Marchandises", path: "/e-services/autorisation-transport-marchandises" },
-          { title: "Transport Personnes", path: "/e-services/autorisation-transport-personnes" }
-        ]},
-        { title: "Services Spécialisés", path: "/e-services", submenu: [
-          { title: "Produits Stratégiques", path: "/e-services/agrement-transport-produits-strategiques" },
-          { title: "Mise en Gage Véhicule", path: "/e-services/mise-en-gage-vehicule" }
-        ]}
+        {
+          title: "Aviation Civile",
+          path: "/e-services",
+          submenu: [
+            {
+              title: "Site ANAC",
+              path: "https://anac-niger.org",
+              external: true,
+            },
+          ],
+        },
+        {
+          title: "Permis & Documents",
+          path: "/e-services",
+          submenu: [
+            {
+              title: "Permis International",
+              path: "/e-services/permis-international",
+            },
+            {
+              title: "Carte Grise Internationale",
+              path: "/e-services/carte-grise-internationale",
+            },
+            {
+              title: "Permis de Conduire",
+              path: "/e-services/permis-conduire",
+            },
+          ],
+        },
+        {
+          title: "Homologation",
+          path: "/e-services",
+          submenu: [
+            {
+              title: "Homologation Simple",
+              path: "/e-services/demande-homologation-simple",
+            },
+            {
+              title: "Transformation Véhicule",
+              path: "/e-services/demande-transformation-vehicule",
+            },
+            {
+              title: "Homologation Véhicule",
+              path: "/e-services/homologation-vehicule",
+            },
+          ],
+        },
+        {
+          title: "Autorisations Transport",
+          path: "/e-services",
+          submenu: [
+            {
+              title: "Permis Exploitation Ligne",
+              path: "/e-services/permis-exploitation-ligne-transport",
+            },
+            {
+              title: "Transport Marchandises",
+              path: "/e-services/autorisation-transport-marchandises",
+            },
+            {
+              title: "Transport Personnes",
+              path: "/e-services/autorisation-transport-personnes",
+            },
+          ],
+        },
+        {
+          title: "Services Spécialisés",
+          path: "/e-services",
+          submenu: [
+            {
+              title: "Produits Stratégiques",
+              path: "/e-services/agrement-transport-produits-strategiques",
+            },
+            {
+              title: "Mise en Gage Véhicule",
+              path: "/e-services/mise-en-gage-vehicule",
+            },
+          ],
+        },
       ],
     },
     {
       title: "Suivi de Demande",
       path: "/suivi-demande",
     },
-    { title: "Contact", path: "/contact" },  ];
+    { title: "Contact", path: "/contact" },
+  ];
 
   return (
     <>
@@ -103,7 +161,9 @@ const Navbar = () => {
         <div className="container flex items-center justify-center gap-2">
           <span>République du Niger</span>
           <span className="hidden sm:inline">·</span>
-          <span className="hidden sm:inline">Fraternité · Travail · Progrès</span>
+          <span className="hidden sm:inline">
+            Fraternité · Travail · Progrès
+          </span>
         </div>
       </div>
 
@@ -123,7 +183,7 @@ const Navbar = () => {
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
               <img
-                src={logoNiger}
+                src={isScrolled ? "/armoirie_bg.png" : logoNiger}
                 alt="Logo Niger"
                 className="w-12 h-12 object-contain"
               />

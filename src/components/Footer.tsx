@@ -8,7 +8,6 @@ import {
   Linkedin,
   Youtube,
 } from "lucide-react";
-import logoNiger from "@/assets/logo-niger.jpg";
 
 const Footer = () => {
   const footerLinks = {
@@ -40,7 +39,7 @@ const Footer = () => {
               <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-xl">
                   <img
-                    src={logoNiger}
+                    src="/armoirie_bg.png"
                     alt="Logo Niger"
                     className="w-12 h-12 object-contain"
                   />
