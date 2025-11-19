@@ -16,11 +16,11 @@ router.get('/', getNews);
 
 // Route slug doit être AVANT la route :id pour éviter les conflits
 // Si le param contient un tiret, c'est un slug, sinon c'est un ID
-router.get('/:identifier', (req, res) => {
-  const { identifier } = req.params;
+router.get('/:slug', (req, res) => {
+  const { slug } = req.params;
 
-  // Si l'identifier contient un tiret ou des lettres, c'est un slug
-  if (identifier.includes('-') || /[a-z]/.test(identifier)) {
+  // Si le slug contient un tiret ou des lettres, c'est un slug
+  if (slug.includes('-') || /[a-z]/.test(slug)) {
     return getNewsBySlug(req, res);
   } else {
     // Sinon c'est un ID numérique

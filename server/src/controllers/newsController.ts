@@ -15,8 +15,8 @@ export const getNews = async (req: Request, res: Response) => {
 // Get a single news article by ID
 export const getNewsById = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const news = await pool.query('SELECT * FROM actualites WHERE id = $1', [id]);
+    const { slug } = req.params; // Le paramètre s'appelle "slug" dans la route même pour les IDs
+    const news = await pool.query('SELECT * FROM actualites WHERE id = $1', [slug]);
 
     if (news.rows.length === 0) {
       return res.status(404).json({ msg: 'Article d\'actualité non trouvé' });

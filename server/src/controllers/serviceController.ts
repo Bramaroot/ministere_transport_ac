@@ -50,10 +50,10 @@ export const submitPermisInternational = async (req: Request, res: Response) => 
                         const pieceName = sanitizeFilename(`${field}_${i + 1}`);
                         const extension = path.extname(file.originalname);
                         const newFilename = `${applicantName}-${pieceName}-${submissionDate}${extension}`;
-                        
-                        const tempPath = file.path;
+
+                        // Avec memoryStorage, utiliser file.buffer au lieu de file.path
                         const finalPath = path.join(finalUploadDir, newFilename);
-                        await fs.rename(tempPath, finalPath);
+                        await fs.writeFile(finalPath, file.buffer);
                         tempFilePaths.push(finalPath);
                         photoPaths.push(`permis_international/${codeSuivi}/${newFilename}`);
                     }
@@ -64,9 +64,9 @@ export const submitPermisInternational = async (req: Request, res: Response) => 
                     const extension = path.extname(file.originalname);
                     const newFilename = `${applicantName}-${pieceName}-${submissionDate}${extension}`;
 
-                    const tempPath = file.path;
+                    // Avec memoryStorage, utiliser file.buffer au lieu de file.path
                     const finalPath = path.join(finalUploadDir, newFilename);
-                    await fs.rename(tempPath, finalPath);
+                    await fs.writeFile(finalPath, file.buffer);
                     tempFilePaths.push(finalPath);
                     filePaths[field] = `permis_international/${codeSuivi}/${newFilename}`;
                 }
