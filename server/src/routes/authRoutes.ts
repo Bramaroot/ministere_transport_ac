@@ -11,12 +11,14 @@ import {
   logout
 } from '../controllers/authController.js';
 import { checkAuth } from '../middleware/auth.js';
+import { strictAuthLimiter } from '../middleware/rateLimiter.js';
 
 const router = Router();
 
-// Route de connexion
+// Route de connexion (avec rate limiting strict)
 router.post(
   '/login',
+  strictAuthLimiter,
   [
     body('identifiant').notEmpty().withMessage('L\'identifiant est requis'),
     body('mot_de_passe').notEmpty().withMessage('Le mot de passe est requis')
@@ -24,9 +26,10 @@ router.post(
   login
 );
 
-// Route d'inscription
+// Route d'inscription (avec rate limiting strict)
 router.post(
   '/register',
+  strictAuthLimiter,
   [
     body('email').isEmail().withMessage('Veuillez fournir un email valide'),
     body('nom_utilisateur')
@@ -44,9 +47,10 @@ router.post(
 // Route pour récupérer le profil de l'utilisateur connecté
 router.get('/profile', checkAuth, getProfile);
 
-// 🔹 Nouvelles routes pour l'authentification 2FA admin
+// 🔹 Nouvelles routes pour l'authentification 2FA admin (avec rate limiting strict)
 router.post(
   '/admin/login-otp',
+  strictAuthLimiter,
   [
     body('identifiant').notEmpty().withMessage('L\'identifiant est requis'),
     body('mot_de_passe').notEmpty().withMessage('Le mot de passe est requis')

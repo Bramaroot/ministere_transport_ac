@@ -10,7 +10,9 @@
       "Bash(for file in src/services/authService.ts src/services/profileService.ts src/services/uploadService.ts)",
       "Bash(do echo)",
       "Bash(echo:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

@@ -78,13 +78,8 @@ const AdminEvents = () => {
   };
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
-    if (!isAuthenticated) {
-      navigate("/login");
-    } else {
-      fetchEvents();
-    }
-  }, [navigate, filters]);
+    fetchEvents();
+  }, [filters]);
 
   const handleFilterChange = (key: keyof EventFilters, value: string | number) => {
     setFilters(prev => ({
@@ -112,17 +107,7 @@ const AdminEvents = () => {
 
   const handleDeleteEvent = async (eventId: number) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
-      try {
-        const isAuthenticated = localStorage.getItem('isAuthenticated');
-        const token = localStorage.getItem('token');
-        
-        if (!isAuthenticated || !token) {
-          alert('Vous devez être connecté pour effectuer cette action. Veuillez vous reconnecter.');
-          navigate('/login');
-          return;
-        }
-
-        await deleteEvent(eventId, token);
+      try {await deleteEvent(eventId, token);
         await fetchEvents(); // Recharger la liste
         alert('Événement supprimé avec succès');
       } catch (error) {
@@ -130,8 +115,7 @@ const AdminEvents = () => {
         
         if (error instanceof Error && error.message.includes('401')) {
           alert('Session expirée. Veuillez vous reconnecter.');
-          localStorage.clear();
-          navigate('/login');
+          // Route protégée par AdminRoute
         } else {
           alert('Erreur lors de la suppression de l\'événement');
         }
@@ -162,22 +146,11 @@ const AdminEvents = () => {
   const handleFormSubmit = async (eventData: any) => {
     try {
       // Vérifier l'authentification
-      const isAuthenticated = localStorage.getItem('isAuthenticated');
-      const token = localStorage.getItem('token');
-      
       console.log('État d\'authentification:', {
         isAuthenticated,
         token,
         hasToken: !!token
-      });
-
-      if (!isAuthenticated || !token) {
-        alert('Vous devez être connecté pour effectuer cette action. Veuillez vous reconnecter.');
-        navigate('/login');
-        return;
-      }
-
-      console.log('Données à envoyer:', eventData);
+      });console.log('Données à envoyer:', eventData);
       console.log('Token utilisé:', token);
 
       if (editingEvent) {
@@ -200,8 +173,7 @@ const AdminEvents = () => {
       // Vérifier si c'est une erreur d'authentification
       if (error instanceof Error && error.message.includes('401')) {
         alert('Session expirée. Veuillez vous reconnecter.');
-        localStorage.clear();
-        navigate('/login');
+        // Route protégée par AdminRoute
       } else {
         alert(`Erreur lors de la sauvegarde de l'événement: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
       }

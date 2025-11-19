@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import {
   LayoutDashboard,
   FileText,
@@ -48,6 +49,7 @@ export function AdminSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const collapsed = state === "collapsed";
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
 
@@ -59,10 +61,7 @@ export function AdminSidebar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
+    logout(); // Utilise la fonction logout du contexte qui gère le refresh token
   };
 
   const toggleSubmenu = (title: string) => {

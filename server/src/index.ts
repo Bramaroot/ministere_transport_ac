@@ -5,7 +5,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import rateLimit from 'express-rate-limit';
+import { apiLimiter, authLimiter } from './middleware/rateLimiter.js';
 
 // Import des routes
 import newsRoutes from './routes/newsRoutes.js';
@@ -92,23 +92,9 @@ app.use(cors({
 app.use(express.json()); // Pour parser les requêtes JSON
 app.use(cookieParser()); // Pour parser les cookies
 
-// Configuration de la limitation de débit (Rate Limiting)
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Limite chaque IP à 200 requêtes par fenêtre de 15 minutes
-  standardHeaders: true, // Active les en-têtes standard `RateLimit-*`
-  legacyHeaders: false, // Désactive les en-têtes `X-RateLimit-*`
-  message: 'Trop de requêtes envoyées depuis cette IP, veuillez réessayer après 15 minutes.',
-});
-
-const authLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 10, // Limite à 10 tentatives par fenêtre pour les routes d'authentification
-  message: 'Trop de tentatives de connexion. Veuillez réessayer dans 10 minutes.',
-});
-
 // Appliquer les limiteurs aux routes
 app.use('/api', apiLimiter);
+// Appliquer un rate limiting modéré sur /api/auth (permet refresh fréquent)
 app.use('/api/auth', authLimiter);
 
 

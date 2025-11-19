@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, Eye, Search, Filter, Upload } from "lucide-react";
+import { api } from "@/api";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import AdminFooter from "@/components/AdminFooter";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -74,11 +75,10 @@ const AdminProjects = () => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/projects');
-      const data = await response.json();
-      
-      if (data.success) {
-        setProjects(data.data);
+      const response = await api.get('/projects');
+
+      if (response.data.success) {
+        setProjects(response.data.data);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des projets:', error);
@@ -125,8 +125,7 @@ const AdminProjects = () => {
       // Uploader l'image automatiquement
       setIsUploading(true);
       try {
-        const token = localStorage.getItem('token') || 'Brama';
-        const imageUrl = await uploadImage(file, token);
+        const imageUrl = await uploadImage(file);
         
         // Mettre à jour l'URL de l'image dans le formulaire
         setFormData({...formData, image: imageUrl});
@@ -193,37 +192,28 @@ const AdminProjects = () => {
   // Sauvegarder le projet
   const saveProject = async () => {
     try {
-      const url = editingProject ? `/api/projects/${editingProject.id}` : '/api/projects';
-      const method = editingProject ? 'PUT' : 'POST';
-      
-      const token = localStorage.getItem('token') || 'Brama';
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setIsDialogOpen(false);
-        fetchProjects();
-        setFormData({
-          id: "",
-          title: "",
-          image: "",
-          sector: "",
-          description: "",
-          status: "En cours",
-          budget: "",
-          duration: ""
-        });
+      if (editingProject) {
+        await api.put(`/projects/${editingProject.id}`, formData);
+      } else {
+        await api.post('/projects', formData);
       }
+
+      setIsDialogOpen(false);
+      fetchProjects();
+      setFormData({
+        id: "",
+        title: "",
+        image: "",
+        sector: "",
+        description: "",
+        status: "En cours",
+        budget: "",
+        duration: ""
+      });
+      alert('Projet sauvegardé avec succès');
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
+      alert('Erreur lors de la sauvegarde du projet');
     }
   };
 
@@ -231,20 +221,12 @@ const AdminProjects = () => {
   const deleteProject = async (id: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
       try {
-        const response = await fetch(`/api/projects/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          fetchProjects();
-        }
+        await api.delete(`/projects/${id}`);
+        fetchProjects();
+        alert('Projet supprimé avec succès');
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
+        alert('Erreur lors de la suppression du projet');
       }
     }
   };

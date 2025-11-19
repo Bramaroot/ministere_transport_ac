@@ -49,7 +49,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
-import { authService } from "@/services/authService";
+import { api } from "@/api";
 import { uploadNewsImage, validateImageFile, uploadImage } from "@/services/uploadService";
  
 
@@ -95,10 +95,9 @@ const AdminNews = () => {
 
   const fetchNews = async () => {
     try {
-      const headers = await authService.getAuthHeaders();
-      const response = await fetch("/api/news", { headers });
-      if (!response.ok) throw new Error("Failed to fetch news");
-      const data = await response.json();
+      const response = await api.get("/news");
+      const data = response.data;
+
       // Défensivement vérifier si la réponse est un tableau ou un objet avec une propriété `data`
       if (Array.isArray(data)) {
         setNews(data);
@@ -166,9 +165,8 @@ const AdminNews = () => {
       // Uploader l'image automatiquement
       setIsUploading(true);
       try {
-        const token = localStorage.getItem('token') || 'Brama';
-        const imageUrl = await uploadImage(file, token);
-        
+        const imageUrl = await uploadImage(file);
+
         // Mettre à jour l'URL de l'image dans le formulaire
         setValue("url_image", imageUrl);
         setImagePreview(imageUrl);
@@ -197,9 +195,6 @@ const AdminNews = () => {
   };
 
   const onSubmit: SubmitHandler<NewsFormValues> = async (data) => {
-    const url = editingNews ? `/api/news/${editingNews.id}` : "/api/news";
-    const method = editingNews ? "PUT" : "POST";
-
     try {
       // Préparer les données avec cree_par pour la création
       const requestData = {
@@ -207,20 +202,12 @@ const AdminNews = () => {
         cree_par: 1 // ID de l'utilisateur admin par défaut
       };
 
-      const token = localStorage.getItem('token') || 'Brama';
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      };
-      const response = await fetch(url, {
-        method,
-        headers,
-        body: JSON.stringify(requestData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Operation failed");
+      if (editingNews) {
+        // Mise à jour
+        await api.put(`/news/${editingNews.id}`, requestData);
+      } else {
+        // Création
+        await api.post('/news', requestData);
       }
 
       toast({
@@ -242,12 +229,7 @@ const AdminNews = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const headers = await authService.getAuthHeaders();
-      const response = await fetch(`/api/news/${id}`, {
-         method: "DELETE",
-         headers
-        });
-      if (!response.ok) throw new Error("Deletion failed");
+      await api.delete(`/news/${id}`);
 
       toast({
         title: "Succès",

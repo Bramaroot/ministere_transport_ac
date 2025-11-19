@@ -39,13 +39,8 @@ const AdminUsers = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate("/login");
-    } else {
-      fetchUsers();
-    }
-  }, [navigate]);
+    fetchUsers();
+  }, []);
 
   const fetchUsers = async () => {
     try {

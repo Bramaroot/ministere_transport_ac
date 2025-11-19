@@ -90,13 +90,8 @@ const AdminTenders = () => {
   };
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
-    if (!isAuthenticated) {
-      navigate("/login");
-    } else {
-      fetchTenders();
-    }
-  }, [navigate, filters]);
+    fetchTenders();
+  }, [filters]);
 
   const handleFilterChange = (key: keyof TenderFilters, value: string | number) => {
     setFilters(prev => ({
@@ -125,28 +120,12 @@ const AdminTenders = () => {
   const handleDeleteTender = async (tenderId: number) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cet appel d\'offres ?')) {
       try {
-        const isAuthenticated = localStorage.getItem('isAuthenticated');
-        const token = localStorage.getItem('token');
-
-        if (!isAuthenticated || !token) {
-          alert('Vous devez être connecté pour effectuer cette action. Veuillez vous reconnecter.');
-          navigate('/login');
-          return;
-        }
-
-        await deleteTender(tenderId, token);
-        await fetchTenders(); // Recharger la liste
+        await deleteTender(tenderId);
+        await fetchTenders();
         alert('Appel d\'offres supprimé avec succès');
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
-
-        if (error instanceof Error && error.message.includes('401')) {
-          alert('Session expirée. Veuillez vous reconnecter.');
-          localStorage.clear();
-          navigate('/login');
-        } else {
-          alert('Erreur lors de la suppression de l\'appel d\'offres');
-        }
+        alert('Erreur lors de la suppression de l\'appel d\'offres');
       }
     }
   };
@@ -163,50 +142,18 @@ const AdminTenders = () => {
 
   const handleFormSubmit = async (tenderData: any) => {
     try {
-      // Vérifier l'authentification
-      const isAuthenticated = localStorage.getItem('isAuthenticated');
-      const token = localStorage.getItem('token');
-
-      console.log('État d\'authentification:', {
-        isAuthenticated,
-        token,
-        hasToken: !!token
-      });
-
-      if (!isAuthenticated || !token) {
-        alert('Vous devez être connecté pour effectuer cette action. Veuillez vous reconnecter.');
-        navigate('/login');
-        return;
-      }
-
-      console.log('Données à envoyer:', tenderData);
-      console.log('Token utilisé:', token);
-
       if (editingTender) {
-        console.log('Mise à jour de l\'appel d\'offres:', editingTender.id);
-        const result = await updateTender(editingTender.id, tenderData, token);
-        console.log('Résultat de la mise à jour:', result);
+        await updateTender(editingTender.id, tenderData);
         alert('Appel d\'offres modifié avec succès');
       } else {
-        console.log('Création d\'un nouvel appel d\'offres');
-        const result = await createTender(tenderData, token);
-        console.log('Résultat de la création:', result);
+        await createTender(tenderData);
         alert('Appel d\'offres créé avec succès');
       }
-      await fetchTenders(); // Recharger la liste
+      await fetchTenders();
       handleCloseForms();
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      console.error('Détails de l\'erreur:', error);
-
-      // Vérifier si c'est une erreur d'authentification
-      if (error instanceof Error && error.message.includes('401')) {
-        alert('Session expirée. Veuillez vous reconnecter.');
-        localStorage.clear();
-        navigate('/login');
-      } else {
-        alert(`Erreur lors de la sauvegarde de l'appel d'offres: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
-      }
+      alert(`Erreur lors de la sauvegarde de l'appel d'offres: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     }
   };
 

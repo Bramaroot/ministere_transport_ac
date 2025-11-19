@@ -41,13 +41,8 @@ const AdminProfile = () => {
   });
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
-    if (!isAuthenticated) {
-      navigate("/login");
-    } else {
-      fetchProfile();
-    }
-  }, [navigate]);
+    fetchProfile();
+  }, []);
 
   const fetchProfile = async () => {
     try {

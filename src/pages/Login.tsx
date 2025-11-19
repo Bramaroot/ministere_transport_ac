@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail, Shield } from "lucide-react";
 import AdminLogin2FA from "@/components/AdminLogin2FA";
+import { authService } from "@/services/authService";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -15,31 +17,27 @@ const Login = () => {
   const [use2FA, setUse2FA] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Vérifier si c'est un admin - faire la vérification des identifiants d'abord
-      if (email.includes("@")) {
+      // Déterminer si c'est un admin (email avec @)
+      const isAdmin = email.includes("@");
 
-
-        const requestBody = JSON.stringify({
-          identifiant: email,
-          mot_de_passe: password
-        });
-
-
-        // Vérifier les identifiants admin via l'API (utiliser le proxy Vite)
+      if (isAdmin) {
+        // Flux 2FA pour les admins
         const response = await fetch('/api/auth/admin/login-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          credentials: 'include', // Important pour envoyer les cookies
-          body: requestBody
+          credentials: 'include',
+          body: JSON.stringify({
+            identifiant: email,
+            mot_de_passe: password
+          })
         });
-
-
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -48,59 +46,55 @@ const Login = () => {
         const data = await response.json();
 
         if (data.success) {
-          // Identifiants corrects, stocker l'email et passer à la 2FA
+          // Identifiants corrects, stocker temporairement l'email pour la 2FA
           localStorage.setItem('admin_email', email);
           setUse2FA(true);
-          setIsLoading(false);
           toast({
             title: "Identifiants corrects",
             description: "Code de vérification envoyé à votre email",
           });
         } else {
-          // Identifiants incorrects
           toast({
             title: "Erreur de connexion",
             description: data.message || "Identifiants incorrects",
             variant: "destructive",
           });
-          setIsLoading(false);
         }
-        return;
-      }
+      } else {
+        // Flux standard pour les utilisateurs normaux (sans 2FA)
+        const response = await authService.login(email, password);
 
-      // Simulate authentication pour les utilisateurs normaux
-      setTimeout(() => {
-        if (email === "user@example.com" && password === "password") {
-          localStorage.setItem("isAuthenticated", "true");
-          localStorage.setItem("token", "user123");
-          localStorage.setItem("user", JSON.stringify({
-            id: 2,
-            nom_utilisateur: "user",
-            email: "user@example.com",
-            role: "consultant"
-          }));
+        if (response.success && response.accessToken && response.user) {
+          // Mettre à jour le contexte d'authentification
+          login(response.accessToken, response.user);
+
           toast({
             title: "Connexion réussie",
             description: "Bienvenue dans votre espace",
           });
-          navigate("/");
+
+          // Rediriger selon le rôle
+          if (response.user.role === 'admin') {
+            navigate("/mtac-dash-admin");
+          } else {
+            navigate("/");
+          }
         } else {
           toast({
             title: "Erreur de connexion",
-            description: "Email ou mot de passe incorrect",
+            description: response.message || "Identifiants incorrects",
             variant: "destructive",
           });
         }
-        setIsLoading(false);
-      }, 1000);
-
+      }
     } catch (error) {
       console.error('Erreur de connexion:', error);
       toast({
         title: "Erreur de connexion",
-        description: "Impossible de se connecter au serveur",
+        description: error instanceof Error ? error.message : "Impossible de se connecter au serveur",
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };

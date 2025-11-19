@@ -88,7 +88,7 @@ export const getUpcomingEvents = async (limit: number = 5): Promise<EventRespons
 };
 
 // Créer un nouvel événement
-export const createEvent = async (eventData: Partial<Event>, token: string): Promise<SingleEventResponse> => {
+export const createEvent = async (eventData: Partial<Event>): Promise<SingleEventResponse> => {
   try {
     const response = await api.post('/events', eventData);
     return response.data;
@@ -99,7 +99,7 @@ export const createEvent = async (eventData: Partial<Event>, token: string): Pro
 };
 
 // Mettre à jour un événement
-export const updateEvent = async (id: number, eventData: Partial<Event>, token: string): Promise<SingleEventResponse> => {
+export const updateEvent = async (id: number, eventData: Partial<Event>): Promise<SingleEventResponse> => {
   try {
     const response = await api.put(`/events/${id}`, eventData);
     return response.data;
@@ -110,7 +110,7 @@ export const updateEvent = async (id: number, eventData: Partial<Event>, token: 
 };
 
 // Supprimer un événement
-export const deleteEvent = async (id: number, token: string): Promise<{ success: boolean; message: string }> => {
+export const deleteEvent = async (id: number): Promise<{ success: boolean; message: string }> => {
   try {
     const response = await api.delete(`/events/${id}`);
     return response.data;

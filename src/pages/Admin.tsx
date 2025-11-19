@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,23 +26,28 @@ import { getStats, StatsResponse } from "@/services/statsService";
 
 const Admin = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, isAdmin, loading: authLoading } = useAuth();
   const [stats, setStats] = useState<StatsResponse['data'] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
-    if (!isAuthenticated) {
+    // Attendre que l'authentification soit vérifiée
+    if (authLoading) return;
+
+    // Si pas connecté ou pas admin, rediriger vers login
+    if (!isAuthenticated || !isAdmin) {
       navigate("/mtac-dash-login");
-    } else {
-      fetchStats();
+      return;
     }
-  }, [navigate]);
+
+    // Si authentifié et admin, charger les stats
+    fetchStats();
+  }, [isAuthenticated, isAdmin, authLoading, navigate]);
 
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
       const response = await getStats();
       
       if (response.success) {

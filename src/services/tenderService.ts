@@ -92,7 +92,7 @@ export const getPublishedTenders = async (filters: TenderFilters = {}): Promise<
 };
 
 // Créer un nouvel appel d'offres
-export const createTender = async (tenderData: Partial<Tender>, token: string): Promise<SingleTenderResponse> => {
+export const createTender = async (tenderData: Partial<Tender>): Promise<SingleTenderResponse> => {
   try {
     const response = await api.post('/tenders', tenderData);
     return response.data;
@@ -103,7 +103,7 @@ export const createTender = async (tenderData: Partial<Tender>, token: string): 
 };
 
 // Mettre à jour un appel d'offres
-export const updateTender = async (id: number, tenderData: Partial<Tender>, token: string): Promise<SingleTenderResponse> => {
+export const updateTender = async (id: number, tenderData: Partial<Tender>): Promise<SingleTenderResponse> => {
   try {
     const response = await api.put(`/tenders/${id}`, tenderData);
     return response.data;
@@ -114,7 +114,7 @@ export const updateTender = async (id: number, tenderData: Partial<Tender>, toke
 };
 
 // Supprimer un appel d'offres
-export const deleteTender = async (id: number, token: string): Promise<{ success: boolean; message: string }> => {
+export const deleteTender = async (id: number): Promise<{ success: boolean; message: string }> => {
   try {
     const response = await api.delete(`/tenders/${id}`);
     return response.data;

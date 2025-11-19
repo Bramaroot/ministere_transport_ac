@@ -92,8 +92,17 @@ const Projects = () => {
 
         {/* Projets en cartes modernes */}
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-            {projects.map((project) => {
+          {projects.length === 0 ? (
+            <div className="text-center py-16">
+              <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-2xl font-bold mb-2">Aucun projet disponible</h3>
+              <p className="text-muted-foreground mb-6">
+                Il n'y a actuellement aucun projet à afficher. Revenez plus tard pour découvrir nos nouvelles initiatives.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+              {projects.map((project) => {
               const { icon: SectorIcon, color: sectorColor } = getSectorInfo(project.sector);
               return (
                 <Card
@@ -173,10 +182,8 @@ const Projects = () => {
                 </Card>
               );
             })}
-          </div>
-
-
-
+            </div>
+          )}
         </div>
       </div>
     </>

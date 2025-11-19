@@ -33,11 +33,8 @@ const EServicesAdmin = () => {
     const [statusFilter, setStatusFilter] = useState("all");
 
     useEffect(() => {
-        const isAuthenticated = localStorage.getItem("isAuthenticated");
-        if (!isAuthenticated) {
-            navigate("/login");
-        }
-    }, [navigate]);
+        // Route protégée par AdminRoute
+    }, []);
 
     // Données simulées des demandes de permis international
     const mockRequests = [
