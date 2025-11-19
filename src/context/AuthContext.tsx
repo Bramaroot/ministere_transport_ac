@@ -68,8 +68,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(userData);
       setIsAuthenticated(true);
       setIsAdmin(userData.role === 'admin');
-    } catch (error) {
-      console.error('User not authenticated:', error);
+    } catch (error: any) {
+      // Ne logger que les vraies erreurs (pas 401 qui signifie "pas connecté")
+      if (error?.response?.status !== 401) {
+        console.error('Erreur lors de la vérification de l\'authentification:', error);
+      }
       // L'utilisateur n'est pas connecté ou le refresh token est expiré
       setAccessToken(null);
       setUser(null);

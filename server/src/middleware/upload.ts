@@ -1,7 +1,6 @@
 import multer from 'multer';
 import path from 'path';
 import { Request } from 'express';
-import { fileTypeFromBuffer } from 'file-type'; // New import
 
 // Configuration du stockage des fichiers pour les actualités
 const newsStorage = multer.diskStorage({
@@ -126,26 +125,15 @@ export const uploadProjectImage = uploadProject.single('image');
 // Configuration pour les services E-Services (ex: Permis International)
 // ====================================================================
 
-// Stockage temporaire pour les fichiers privés
-const privateTempStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'server/private_uploads/temp/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const extension = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${uniqueSuffix}${extension}`);
-  },
-});
+// Stockage temporaire pour les fichiers privés (utiliser memoryStorage pour accéder au buffer)
+const privateTempStorage = multer.memoryStorage();
 
 // Filtre pour accepter documents (PDF) et images (JPG, PNG)
-const documentAndImageFileFilter = async (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const documentAndImageFileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
-  
-  // Use file-type to determine the actual file type from its buffer
-  const fileType = await fileTypeFromBuffer(file.buffer);
 
-  if (fileType && allowedMimes.includes(fileType.mime)) {
+  // Vérifier le type MIME (plus simple et plus rapide que file-type)
+  if (allowedMimes.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(new Error('Type de fichier non autorisé. Seuls les PDF, JPG, et PNG sont acceptés.'));

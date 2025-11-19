@@ -4,7 +4,8 @@ export function setRefreshCookie(res: Response, token: string): void {
   res.cookie("rt", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "none", // "lax" fonctionne car on utilise le proxy Vite
+    sameSite: "lax", // "lax" fonctionne avec le proxy nginx en HTTPS
+
     path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });

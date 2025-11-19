@@ -10,10 +10,11 @@ interface NewsArticle {
   contenu: string;
   url_image?: string;
   date_creation: string;
+  slug?: string;
 }
 
 const NewsDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Peut être un ID ou un slug
   const [article, setArticle] = useState<NewsArticle | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -25,6 +26,7 @@ const NewsDetail = () => {
   const fetchArticle = async () => {
     setLoading(true);
     try {
+      // Le backend gère automatiquement ID ou slug
       const response = await fetch(`/api/news/${id}`);
       if (!response.ok) throw new Error("Failed to fetch article");
       const data = await response.json();

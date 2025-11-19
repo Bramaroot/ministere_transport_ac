@@ -604,13 +604,13 @@ export const resendAdminOTP = async (req: Request, res: Response) => {
 
 // REFRESH TOKEN (nouvelle route)
 export const refreshToken = async (req: Request, res: Response) => {
-  console.log('🔄 [REFRESH] Début du rafraîchissement du token');
   const token = req.cookies?.rt;
 
   if (!token) {
-    console.log('❌ [REFRESH] Aucun refresh token trouvé dans les cookies');
+    // Pas de log ici : c'est normal pour un utilisateur non connecté
     return res.status(401).json({ message: "No refresh token" });
   }
+  console.log('🔄 [REFRESH] Début du rafraîchissement du token');
   console.log('🍪 [REFRESH] Refresh token reçu:', token.slice(0, 10) + '...');
 
   try {

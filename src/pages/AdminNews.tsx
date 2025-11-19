@@ -68,6 +68,7 @@ interface NewsArticle {
   titre: string;
   contenu: string;
   url_image?: string;
+  slug?: string; // Généré automatiquement par le backend
   active: boolean;
   date_creation: string;
 }

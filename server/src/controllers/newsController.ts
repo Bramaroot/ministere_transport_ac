@@ -12,11 +12,28 @@ export const getNews = async (req: Request, res: Response) => {
   }
 };
 
-// Get a single news article
+// Get a single news article by ID
 export const getNewsById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const news = await pool.query('SELECT * FROM actualites WHERE id = $1', [id]);
+
+    if (news.rows.length === 0) {
+      return res.status(404).json({ msg: 'Article d\'actualité non trouvé' });
+    }
+
+    res.json(news.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+// Get a single news article by slug
+export const getNewsBySlug = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const news = await pool.query('SELECT * FROM actualites WHERE slug = $1', [slug]);
 
     if (news.rows.length === 0) {
       return res.status(404).json({ msg: 'Article d\'actualité non trouvé' });

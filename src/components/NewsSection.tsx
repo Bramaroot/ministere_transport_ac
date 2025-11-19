@@ -77,7 +77,7 @@ const NewsSection = () => {
             {news.map((item, index) => (
               <Link
                 key={item.id}
-                to={`/actualites/${item.id}`}
+                to={`/actualites/${item.slug || item.id}`}
                 className="group animate-scale-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
