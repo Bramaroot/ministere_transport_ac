@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { X } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { UserCircle, Lock, Shield, Loader2 } from "lucide-react";
 import { User } from "@/services/userService";
+import { useToast } from "@/hooks/use-toast";
 
 interface UserFormProps {
   user?: User | null;
@@ -22,6 +24,8 @@ const userRoles = [
 ];
 
 export const UserForm = ({ user, onSubmit, onClose, isOpen }: UserFormProps) => {
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     prenom: '',
     nom: '',
@@ -56,13 +60,18 @@ export const UserForm = ({ user, onSubmit, onClose, isOpen }: UserFormProps) => 
     }
   }, [user, isOpen]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const dataToSubmit = { ...formData };
-    if (isEditing && !dataToSubmit.mot_de_passe) {
-      delete (dataToSubmit as any).mot_de_passe;
+    setIsSaving(true);
+    try {
+      const dataToSubmit = { ...formData };
+      if (isEditing && !dataToSubmit.mot_de_passe) {
+        delete (dataToSubmit as any).mot_de_passe;
+      }
+      await onSubmit(dataToSubmit);
+    } finally {
+      setIsSaving(false);
     }
-    onSubmit(dataToSubmit);
   };
 
   const handleChange = (field: string, value: string | boolean) => {
@@ -72,56 +81,81 @@ export const UserForm = ({ user, onSubmit, onClose, isOpen }: UserFormProps) => 
     }));
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl flex items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <UserCircle className="w-5 h-5 text-primary" />
+            </div>
             {isEditing ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur'}
-          </CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="w-4 h-4" />
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          </DialogTitle>
+          <DialogDescription>
+            {isEditing ? 'Modifiez les informations de l\'utilisateur ci-dessous.' : 'Créez un nouvel utilisateur en remplissant le formulaire ci-dessous.'}
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Section Informations personnelles */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <UserCircle className="w-5 h-5 text-primary" />
+              Informations personnelles
+            </h3>
+            <Separator />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="prenom">Prénom *</Label>
+                <Label htmlFor="prenom" className="text-base font-semibold">Prénom *</Label>
                 <Input
                   id="prenom"
                   value={formData.prenom}
                   onChange={(e) => handleChange('prenom', e.target.value)}
                   required
+                  className="h-11"
+                  placeholder="Prénom de l'utilisateur"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="nom">Nom *</Label>
+                <Label htmlFor="nom" className="text-base font-semibold">Nom *</Label>
                 <Input
                   id="nom"
                   value={formData.nom}
                   onChange={(e) => handleChange('nom', e.target.value)}
                   required
+                  className="h-11"
+                  placeholder="Nom de l'utilisateur"
+                />
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="email" className="text-base font-semibold">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleChange('email', e.target.value)}
+                  required
+                  className="h-11"
+                  placeholder="email@example.com"
                 />
               </div>
             </div>
+          </div>
+
+          {/* Section Authentification */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Lock className="w-5 h-5 text-primary" />
+              Authentification
+            </h3>
+            <Separator />
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="mot_de_passe">
-                Mot de passe {isEditing ? '(laisser vide pour ne pas changer)' : '*'}
+              <Label htmlFor="mot_de_passe" className="text-base font-semibold">
+                Mot de passe {isEditing ? '' : '*'}
               </Label>
               <Input
                 id="mot_de_passe"
@@ -129,14 +163,30 @@ export const UserForm = ({ user, onSubmit, onClose, isOpen }: UserFormProps) => 
                 value={formData.mot_de_passe}
                 onChange={(e) => handleChange('mot_de_passe', e.target.value)}
                 required={!isEditing}
+                className="h-11"
+                placeholder={isEditing ? "Laisser vide pour ne pas changer" : "Minimum 6 caractères"}
               />
+              {isEditing && (
+                <p className="text-xs text-muted-foreground">
+                  Laisser vide pour conserver le mot de passe actuel
+                </p>
+              )}
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          {/* Section Paramètres du compte */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Shield className="w-5 h-5 text-primary" />
+              Paramètres du compte
+            </h3>
+            <Separator />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="role">Rôle *</Label>
+                <Label htmlFor="role" className="text-base font-semibold">Rôle *</Label>
                 <Select value={formData.role} onValueChange={(value) => handleChange('role', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -148,27 +198,39 @@ export const UserForm = ({ user, onSubmit, onClose, isOpen }: UserFormProps) => 
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center space-x-2 pt-6">
+
+              <div className="flex items-center space-x-3 pt-8">
                 <Switch
                   id="actif"
                   checked={formData.actif}
                   onCheckedChange={(checked) => handleChange('actif', checked)}
                 />
-                <Label htmlFor="actif">Actif</Label>
+                <Label htmlFor="actif" className="text-base font-semibold cursor-pointer">
+                  Compte actif
+                </Label>
               </div>
             </div>
+          </div>
 
-            <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Annuler
-              </Button>
-              <Button type="submit">
-                {isEditing ? 'Modifier' : 'Créer'}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          <DialogFooter className="gap-2">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
+              Annuler
+            </Button>
+            <Button type="submit" disabled={isSaving} className="gap-2">
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  {isEditing ? 'Modifier' : 'Créer'}
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };

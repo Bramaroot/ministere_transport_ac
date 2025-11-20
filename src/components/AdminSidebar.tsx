@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -10,7 +10,9 @@ import {
   Building2,
   Calendar,
   Globe,
-  FileEdit, // Added FileEdit
+  FileEdit,
+  UserCircle2,
+  Settings,
 } from "lucide-react";
 import {
   Sidebar,
@@ -26,6 +28,18 @@ import {
   SidebarMenuSubButton,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const menuItems = [
   { title: "Tableau de Bord", url: "/mtac-dash-admin", icon: LayoutDashboard },
@@ -42,16 +56,31 @@ const menuItems = [
     ]
   },
   { title: "Utilisateurs", url: "/mtac-dash-admin/users", icon: Users },
-  { title: "Mon Profil", url: "/mtac-dash-admin/profile", icon: Users },
 ];
 
 export function AdminSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const collapsed = state === "collapsed";
-  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+
+  // Déterminer quel submenu doit être ouvert en fonction de l'URL actuelle
+  const getInitialOpenSubmenu = () => {
+    for (const item of menuItems) {
+      if (item.submenu) {
+        const hasActiveSubmenu = item.submenu.some(subItem =>
+          location.pathname === subItem.url || location.pathname.startsWith(subItem.url)
+        );
+        if (hasActiveSubmenu) {
+          return item.title;
+        }
+      }
+    }
+    return null;
+  };
+
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(getInitialOpenSubmenu());
 
   const isActive = (path: string, exact = false) => {
     if (exact) {
@@ -62,10 +91,30 @@ export function AdminSidebar() {
 
   const handleLogout = () => {
     logout(); // Utilise la fonction logout du contexte qui gère le refresh token
+    navigate("/mtac-dash-login");
   };
 
   const toggleSubmenu = (title: string) => {
     setOpenSubmenu(openSubmenu === title ? null : title);
+  };
+
+  // Mettre à jour le submenu ouvert quand l'URL change
+  useEffect(() => {
+    const activeSubmenu = getInitialOpenSubmenu();
+    if (activeSubmenu) {
+      setOpenSubmenu(activeSubmenu);
+    }
+  }, [location.pathname]);
+
+  // Obtenir les initiales de l'utilisateur
+  const getUserInitials = () => {
+    if (user?.prenom && user?.nom) {
+      return `${user.prenom[0]}${user.nom[0]}`.toUpperCase();
+    }
+    if (user?.nom_utilisateur) {
+      return user.nom_utilisateur.substring(0, 2).toUpperCase();
+    }
+    return "AD";
   };
 
   return (
@@ -136,16 +185,81 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Logout Button at Bottom */}
-      <div className="mt-auto border-t border-sidebar-border p-3">
-        <SidebarMenuButton
-          onClick={handleLogout}
-          className="w-full"
-          tooltip={collapsed ? "Déconnexion" : undefined}
-        >
-          <LogOut className="w-4 h-4" />
-          {!collapsed && <span>Déconnexion</span>}
-        </SidebarMenuButton>
+      {/* Section Utilisateur en bas */}
+      <div className="mt-auto border-t border-sidebar-border">
+        {/* Profil utilisateur */}
+        <div className="p-3 border-b border-sidebar-border">
+          <Link to="/mtac-dash-admin/profile">
+            <SidebarMenuButton
+              isActive={isActive("/mtac-dash-admin/profile", true)}
+              className="w-full hover:bg-sidebar-accent"
+              tooltip={collapsed ? "Mon Profil" : undefined}
+            >
+              <div className="flex items-center gap-3 w-full">
+                <Avatar className="w-8 h-8">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                    {getUserInitials()}
+                  </AvatarFallback>
+                </Avatar>
+                {!collapsed && (
+                  <div className="flex-1 overflow-hidden">
+                    <p className="text-sm font-semibold truncate">
+                      {user?.prenom || user?.nom_utilisateur || "Administrateur"}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user?.role || "Admin"}
+                    </p>
+                  </div>
+                )}
+                {!collapsed && (
+                  <Settings className="w-4 h-4 text-muted-foreground shrink-0" />
+                )}
+              </div>
+            </SidebarMenuButton>
+          </Link>
+        </div>
+
+        {/* Bouton de déconnexion avec confirmation */}
+        <div className="p-3">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <SidebarMenuButton
+                className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                tooltip={collapsed ? "Déconnexion" : undefined}
+              >
+                <LogOut className="w-4 h-4" />
+                {!collapsed && <span>Déconnexion</span>}
+              </SidebarMenuButton>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/30 flex items-center justify-center">
+                    <LogOut className="w-5 h-5 text-red-600" />
+                  </div>
+                  <span>Confirmer la déconnexion</span>
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-base">
+                  Êtes-vous sûr de vouloir vous déconnecter de votre session administrateur ?
+                  <br />
+                  <span className="text-sm text-muted-foreground mt-2 block">
+                    Vous devrez vous reconnecter pour accéder à nouveau au panneau d'administration.
+                  </span>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleLogout}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Se déconnecter
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
     </Sidebar>
   );

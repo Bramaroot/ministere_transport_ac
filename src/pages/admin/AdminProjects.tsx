@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, Eye, Search, Filter, Upload } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Search, Filter, Upload, FileText, Tags, DollarSign, Calendar, Image as ImageIcon, Loader2, X as XIcon } from "lucide-react";
 import { api } from "@/api";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import AdminFooter from "@/components/AdminFooter";
@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -19,6 +20,8 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -33,6 +36,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { uploadProjectImage, validateImageFile, uploadImage } from "@/services/uploadService";
+import { useToast } from "@/hooks/use-toast";
 
 interface Project {
   id: string;
@@ -50,6 +54,7 @@ interface Project {
 }
 
 const AdminProjects = () => {
+  const { toast } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,6 +65,7 @@ const AdminProjects = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     id: "",
     title: "",
@@ -109,12 +115,16 @@ const AdminProjects = () => {
       // Valider le fichier
       const validation = validateImageFile(file);
       if (!validation.valid) {
-        alert(validation.message || "Fichier invalide");
+        toast({
+          title: "Fichier invalide",
+          description: validation.message || "Veuillez sélectionner une image valide.",
+          variant: "destructive",
+        });
         return;
       }
 
       setSelectedImage(file);
-      
+
       // Créer un aperçu local
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -125,16 +135,24 @@ const AdminProjects = () => {
       // Uploader l'image automatiquement
       setIsUploading(true);
       try {
-        const imageUrl = await uploadImage(file);
-        
+        const token = localStorage.getItem('token') || 'Brama';
+        const imageUrl = await uploadImage(file, token);
+
         // Mettre à jour l'URL de l'image dans le formulaire
         setFormData({...formData, image: imageUrl});
         setImagePreview(imageUrl);
-        
-        alert('Image uploadée avec succès');
+
+        toast({
+          title: "Image uploadée",
+          description: "L'image a été uploadée avec succès.",
+        });
       } catch (error) {
         console.error('Erreur lors de l\'upload:', error);
-        alert('Erreur lors de l\'upload de l\'image');
+        toast({
+          title: "Erreur d'upload",
+          description: "Impossible d'uploader l'image. Veuillez réessayer.",
+          variant: "destructive",
+        });
       } finally {
         setIsUploading(false);
       }
@@ -191,6 +209,7 @@ const AdminProjects = () => {
 
   // Sauvegarder le projet
   const saveProject = async () => {
+    setIsSaving(true);
     try {
       if (editingProject) {
         await api.put(`/projects/${editingProject.id}`, formData);
@@ -210,10 +229,19 @@ const AdminProjects = () => {
         budget: "",
         duration: ""
       });
-      alert('Projet sauvegardé avec succès');
+      toast({
+        title: "Succès",
+        description: "Projet sauvegardé avec succès.",
+      });
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      alert('Erreur lors de la sauvegarde du projet');
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la sauvegarde du projet.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -223,10 +251,17 @@ const AdminProjects = () => {
       try {
         await api.delete(`/projects/${id}`);
         fetchProjects();
-        alert('Projet supprimé avec succès');
+        toast({
+          title: "Succès",
+          description: "Projet supprimé avec succès.",
+        });
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
-        alert('Erreur lors de la suppression du projet');
+        toast({
+          title: "Erreur",
+          description: "Erreur lors de la suppression du projet.",
+          variant: "destructive",
+        });
       }
     }
   };
@@ -418,154 +453,230 @@ const AdminProjects = () => {
 
       {/* Dialogue de création/modification */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-2xl flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-primary" />
+              </div>
               {editingProject ? 'Modifier le projet' : 'Nouveau projet'}
             </DialogTitle>
+            <DialogDescription>
+              {editingProject ? 'Modifiez les informations du projet ci-dessous.' : 'Créez un nouveau projet en remplissant le formulaire ci-dessous.'}
+            </DialogDescription>
           </DialogHeader>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="id">ID du projet</Label>
-              <Input
-                id="id"
-                value={formData.id}
-                onChange={(e) => setFormData({...formData, id: e.target.value})}
-                placeholder="ex: projet-route-niamey"
-              />
+
+          <div className="space-y-6">
+            {/* Section Informations générales */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <FileText className="w-5 h-5 text-primary" />
+                Informations générales
+              </h3>
+              <Separator />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="id" className="text-base font-semibold">ID du projet *</Label>
+                  <Input
+                    id="id"
+                    value={formData.id}
+                    onChange={(e) => setFormData({...formData, id: e.target.value})}
+                    placeholder="ex: projet-route-niamey"
+                    className="h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-base font-semibold">Titre *</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    placeholder="Titre du projet"
+                    className="h-11"
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="description" className="text-base font-semibold">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    placeholder="Description détaillée du projet"
+                    rows={4}
+                    className="resize-none"
+                  />
+                </div>
+              </div>
             </div>
-            
-            <div>
-              <Label htmlFor="title">Titre</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
-                placeholder="Titre du projet"
-              />
+
+            {/* Section Classification */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Tags className="w-5 h-5 text-primary" />
+                Classification
+              </h3>
+              <Separator />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="sector" className="text-base font-semibold">Secteur *</Label>
+                  <Select value={formData.sector} onValueChange={(value) => setFormData({...formData, sector: value})}>
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Sélectionner un secteur" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Transport Terrestre">Transport Terrestre</SelectItem>
+                      <SelectItem value="Aviation Civile">Aviation Civile</SelectItem>
+                      <SelectItem value="Infrastructures">Infrastructures</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="status" className="text-base font-semibold">Statut *</Label>
+                  <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Sélectionner un statut" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Planification">Planification</SelectItem>
+                      <SelectItem value="En cours">En cours</SelectItem>
+                      <SelectItem value="Terminé">Terminé</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
-            
-            <div>
-              <Label htmlFor="sector">Secteur</Label>
-              <Select value={formData.sector} onValueChange={(value) => setFormData({...formData, sector: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un secteur" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Transport Terrestre">Transport Terrestre</SelectItem>
-                  <SelectItem value="Aviation Civile">Aviation Civile</SelectItem>
-                  <SelectItem value="Infrastructures">Infrastructures</SelectItem>
-                </SelectContent>
-              </Select>
+
+            {/* Section Détails financiers et temporels */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-primary" />
+                Détails financiers et temporels
+              </h3>
+              <Separator />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="budget" className="text-base font-semibold">Budget</Label>
+                  <Input
+                    id="budget"
+                    value={formData.budget}
+                    onChange={(e) => setFormData({...formData, budget: e.target.value})}
+                    placeholder="ex: 45 Milliards FCFA"
+                    className="h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="duration" className="text-base font-semibold">Durée</Label>
+                  <Input
+                    id="duration"
+                    value={formData.duration}
+                    onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                    placeholder="ex: 2023-2026"
+                    className="h-11"
+                  />
+                </div>
+              </div>
             </div>
-            
-            <div>
-              <Label htmlFor="status">Statut</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Planification">Planification</SelectItem>
-                  <SelectItem value="En cours">En cours</SelectItem>
-                  <SelectItem value="Terminé">Terminé</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="budget">Budget</Label>
-              <Input
-                id="budget"
-                value={formData.budget}
-                onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                placeholder="ex: 45 Milliards FCFA"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="duration">Durée</Label>
-              <Input
-                id="duration"
-                value={formData.duration}
-                onChange={(e) => setFormData({...formData, duration: e.target.value})}
-                placeholder="ex: 2023-2026"
-              />
-            </div>
-            
-            <div className="md:col-span-2">
-              <Label htmlFor="image">Image du projet</Label>
-              
-              {/* Aperçu de l'image */}
+
+            {/* Section Image */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-primary" />
+                Image du projet
+              </h3>
+              <Separator />
+
               {imagePreview && (
-                <div className="mb-4">
-                  <img 
-                    src={imagePreview} 
-                    alt="Aperçu" 
-                    className="w-32 h-32 object-cover rounded-lg border"
+                <div className="relative w-full h-48 rounded-lg border-2 border-dashed border-muted-foreground/25 overflow-hidden bg-muted/30">
+                  <img
+                    src={imagePreview}
+                    alt="Aperçu"
+                    className="w-full h-full object-cover"
                   />
                   <Button
                     type="button"
                     variant="destructive"
                     size="sm"
                     onClick={removeImage}
-                    className="mt-2"
+                    className="absolute top-2 right-2"
                   >
-                    Supprimer l'image
+                    <XIcon className="w-4 h-4 mr-1" />
+                    Supprimer
                   </Button>
                 </div>
               )}
-              
-              {/* Upload d'image */}
+
+              {!imagePreview && (
+                <div className="relative">
+                  <Label htmlFor="image" className="cursor-pointer">
+                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 hover:border-primary/50 transition-colors bg-muted/30">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Upload className="w-8 h-8 text-primary" />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-base font-semibold">Cliquez pour uploader une image</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            JPG, PNG, GIF jusqu'à 5MB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Label>
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    disabled={isUploading}
+                    className="hidden"
+                  />
+                </div>
+              )}
+
+              {isUploading && (
+                <div className="flex items-center justify-center gap-2 text-primary p-4 bg-primary/5 rounded-lg">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span className="font-medium">Upload en cours...</span>
+                </div>
+              )}
+
               <div className="space-y-2">
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageSelect}
-                  disabled={isUploading}
-                />
-                {isUploading && (
-                  <p className="text-sm text-blue-600">Upload en cours...</p>
-                )}
-                <p className="text-xs text-gray-500">
-                  JPG, PNG, GIF jusqu'à 5MB
-                </p>
-              </div>
-              
-              {/* URL manuelle (optionnel) */}
-              <div className="mt-2">
-                <Label htmlFor="imageUrl">Ou URL manuelle</Label>
+                <Label htmlFor="imageUrl" className="text-base font-semibold">Ou URL manuelle</Label>
                 <Input
                   id="imageUrl"
                   value={formData.image}
                   onChange={(e) => setFormData({...formData, image: e.target.value})}
-                  placeholder="URL de l'image du projet"
+                  placeholder="https://example.com/image.jpg"
+                  className="h-11"
                 />
               </div>
             </div>
-            
-            <div className="md:col-span-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                placeholder="Description détaillée du projet"
-                rows={4}
-              />
-            </div>
           </div>
-          
-          <div className="flex justify-end space-x-2 mt-6">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+
+          <DialogFooter className="gap-2">
+            <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isSaving}>
               Annuler
             </Button>
-            <Button onClick={saveProject}>
-              {editingProject ? 'Modifier' : 'Créer'}
+            <Button onClick={saveProject} disabled={isSaving || isUploading} className="gap-2">
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  {editingProject ? 'Modifier' : 'Créer'}
+                </>
+              )}
             </Button>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </SidebarProvider>

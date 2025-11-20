@@ -151,19 +151,69 @@ export const getAllPermisInternational = async (req: Request, res: Response) => 
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = (page - 1) * limit;
+    const search = req.query.search as string || '';
+    const status = req.query.status as string || '';
 
     try {
+        // Build WHERE clause based on filters
+        let whereConditions: string[] = [];
+        let params: any[] = [];
+        let paramIndex = 1;
+
+        if (search) {
+            whereConditions.push(`(nom ILIKE $${paramIndex} OR prenom ILIKE $${paramIndex} OR email ILIKE $${paramIndex} OR code_suivi ILIKE $${paramIndex})`);
+            params.push(`%${search}%`);
+            paramIndex++;
+        }
+
+        if (status) {
+            whereConditions.push(`status = $${paramIndex}`);
+            params.push(status);
+            paramIndex++;
+        }
+
+        const whereClause = whereConditions.length > 0 ? 'WHERE ' + whereConditions.join(' AND ') : '';
+
+        // Add limit and offset to params
+        params.push(limit, offset);
+
         const result = await pool.query(
-            'SELECT id, code_suivi, nom, prenom, status, created_at FROM demandes_permis_international ORDER BY created_at DESC LIMIT $1 OFFSET $2',
-            [limit, offset]
+            `SELECT * FROM demandes_permis_international ${whereClause} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+            params
         );
-        const totalResult = await pool.query('SELECT COUNT(*) FROM demandes_permis_international');
+
+        const totalResult = await pool.query(
+            `SELECT COUNT(*) FROM demandes_permis_international ${whereClause}`,
+            params.slice(0, -2) // Remove limit and offset from count query
+        );
         const total = parseInt(totalResult.rows[0].count, 10);
 
+        // Format data for frontend
+        const applications = result.rows.map(row => ({
+            id: row.id,
+            reference: row.code_suivi,
+            statut: row.status,
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+            demandeur_details: {
+                nom_complet: `${row.prenom} ${row.nom}`,
+                email: row.email,
+                telephone: row.telephone
+            },
+            permis_details: {
+                numero_permis: row.numero_permis_national,
+                categorie: row.categorie_permis,
+                date_delivrance: row.date_delivrance_permis,
+                date_expiration: row.date_expiration_permis
+            },
+            documents: row.documents || []
+        }));
+
         res.status(200).json({
-            data: result.rows,
+            applications,
             totalPages: Math.ceil(total / limit),
-            currentPage: page,
+            totalApplications: total,
+            currentPage: page
         });
     } catch (error) {
         console.error("Erreur lors de la récupération de toutes les demandes de permis international:", error);
@@ -187,7 +237,7 @@ export const getPermisInternationalById = async (req: Request, res: Response) =>
 
 export const updatePermisInternationalStatus = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, comment } = req.body;
 
     if (!status) {
         return res.status(400).json({ message: 'Le statut est requis.' });
@@ -201,7 +251,13 @@ export const updatePermisInternationalStatus = async (req: Request, res: Respons
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Demande non trouvée.' });
         }
-        res.status(200).json(result.rows[0]);
+
+        // If there's a comment, log it (you can store it in a comments table if needed)
+        if (comment) {
+            console.log(`Comment for application ${id}: ${comment}`);
+        }
+
+        res.status(200).json({ success: true, data: result.rows[0] });
     } catch (error) {
         console.error("Erreur lors de la mise à jour du statut de la demande:", error);
         res.status(500).json({ message: 'Erreur interne du serveur.' });

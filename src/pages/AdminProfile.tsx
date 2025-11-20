@@ -1,18 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { AdminFooter } from "@/components/AdminFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Save, Mail, Phone, MapPin, User as UserIcon, Lock, AlertCircle, Loader2 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Save, Mail, User as UserIcon, Lock, AlertCircle, Loader2, Shield, UserCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { getProfile, updateProfile, changePassword, uploadAvatar, Profile } from "@/services/profileService";
+import { getProfile, updateProfile, changePassword, Profile } from "@/services/profileService";
 
 const AdminProfile = () => {
   const { toast } = useToast();
@@ -21,16 +20,12 @@ const AdminProfile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("profile");
 
   // États pour le formulaire de profil
   const [formData, setFormData] = useState({
     nom: "",
     prenom: "",
     email: "",
-    telephone: "",
-    adresse: "",
-    bio: "",
   });
 
   // États pour le changement de mot de passe
@@ -48,16 +43,13 @@ const AdminProfile = () => {
     try {
       setLoading(true);
       const response = await getProfile();
-      
+
       if (response.success) {
         setProfile(response.data);
         setFormData({
           nom: response.data.nom || "",
           prenom: response.data.prenom || "",
           email: response.data.email || "",
-          telephone: response.data.telephone || "",
-          adresse: response.data.adresse || "",
-          bio: response.data.bio || "",
         });
       } else {
         setError('Erreur lors du chargement du profil');
@@ -74,7 +66,7 @@ const AdminProfile = () => {
     try {
       setSaving(true);
       const response = await updateProfile(formData);
-      
+
       if (response.success) {
         setProfile(response.data);
         toast({
@@ -110,10 +102,19 @@ const AdminProfile = () => {
       return;
     }
 
+    if (passwordData.nouveau_mot_de_passe.length < 6) {
+      toast({
+        title: "Erreur",
+        description: "Le mot de passe doit contenir au moins 6 caractères.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setSaving(true);
       const response = await changePassword(passwordData);
-      
+
       if (response.success) {
         toast({
           title: "Mot de passe modifié",
@@ -143,165 +144,124 @@ const AdminProfile = () => {
     }
   };
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      try {
-        setSaving(true);
-        const response = await uploadAvatar(file);
-        
-        if (response.success) {
-          setProfile(prev => prev ? { ...prev, avatar: response.data.avatar_url } : null);
-          toast({
-            title: "Avatar mis à jour",
-            description: "Votre photo de profil a été mise à jour.",
-          });
-        }
-      } catch (error) {
-        console.error('Erreur lors de l\'upload de l\'avatar:', error);
-        toast({
-          title: "Erreur",
-          description: "Erreur lors de l'upload de l'avatar.",
-          variant: "destructive",
-        });
-      } finally {
-        setSaving(false);
-      }
+  const getUserInitials = () => {
+    if (profile?.prenom && profile?.nom) {
+      return `${profile.prenom[0]}${profile.nom[0]}`.toUpperCase();
     }
+    if (profile?.nom_utilisateur) {
+      return profile.nom_utilisateur.substring(0, 2).toUpperCase();
+    }
+    return "AD";
   };
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 to-slate-100">
         <AdminSidebar />
 
         <div className="flex-1 flex flex-col">
-          <main className="flex-1 bg-muted/30">
-            <div className="glass-card border-b sticky top-0 z-40 mb-8">
-              <div className="container py-4">
-                <div className="flex items-center gap-4">
-                  <SidebarTrigger />
-                  <div>
-                    <h1 className="text-xl font-bold">Mon Profil</h1>
-                    <p className="text-sm text-muted-foreground">
-                      Gérer vos informations personnelles
-                    </p>
-                  </div>
-                </div>
+          {/* Header */}
+          <header className="bg-white/90 backdrop-blur-sm border-b sticky top-0 z-30 shadow-sm">
+            <div className="container py-4 px-6">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Mon Profil
+                </h1>
+                <p className="text-muted-foreground text-sm mt-1">
+                  Gérer vos informations personnelles et votre sécurité
+                </p>
               </div>
             </div>
+          </header>
 
-            <div className="container py-8 max-w-4xl">
+          <main className="flex-1 p-6">
+            <div className="container max-w-5xl mx-auto space-y-6">
               {loading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                  <span className="ml-2">Chargement du profil...</span>
+                  <Loader2 className="w-8 h-8 animate-spin text-primary mr-3" />
+                  <span className="text-lg">Chargement du profil...</span>
                 </div>
               ) : error ? (
                 <div className="text-center py-12">
                   <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                  <p className="text-red-500 mb-4">{error}</p>
-                  <Button onClick={fetchProfile}>Réessayer</Button>
+                  <p className="text-red-500 mb-4 text-lg">{error}</p>
+                  <Button onClick={fetchProfile} size="lg">Réessayer</Button>
                 </div>
               ) : (
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="profile">Profil</TabsTrigger>
-                    <TabsTrigger value="security">Sécurité</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="profile" className="space-y-6">
-                    {/* Avatar Section - Masquée car la colonne avatar n'existe pas encore */}
-                    {false && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Photo de Profil</CardTitle>
-                          <CardDescription>
-                            Ajoutez ou modifiez votre photo de profil
+                <>
+                  {/* Avatar & Basic Info Card */}
+                  <Card className="shadow-lg border-l-4 border-l-primary">
+                    <CardHeader className="pb-4 bg-gradient-to-r from-primary/5 to-transparent">
+                      <div className="flex items-center gap-6">
+                        <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
+                          <AvatarFallback className="text-3xl bg-gradient-to-br from-primary to-primary/70 text-white font-bold">
+                            {getUserInitials()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <CardTitle className="text-2xl flex items-center gap-2">
+                            <UserCircle className="w-6 h-6 text-primary" />
+                            {profile?.prenom} {profile?.nom}
+                          </CardTitle>
+                          <CardDescription className="text-base mt-1">
+                            {profile?.role || "Administrateur"} • {profile?.email}
                           </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex items-center gap-6">
-                            <Avatar className="w-24 h-24">
-                              <AvatarImage src={profile?.avatar} />
-                              <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
-                                {profile?.prenom?.[0] || profile?.nom_utilisateur?.[0] || 'A'}
-                                {profile?.nom?.[0] || profile?.nom_utilisateur?.[1] || 'D'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <Label
-                                htmlFor="avatar-upload"
-                                className="cursor-pointer"
-                              >
-                                <div className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-                                  <Camera className="w-4 h-4" />
-                                  <span>Changer la photo</span>
-                                </div>
-                                <Input
-                                  id="avatar-upload"
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  onChange={handleAvatarChange}
-                                  disabled={saving}
-                                />
-                              </Label>
-                              <p className="text-sm text-muted-foreground mt-2">
-                                JPG, PNG ou GIF. Maximum 2MB.
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                  </Card>
 
-                    {/* Personal Information */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Informations Personnelles</CardTitle>
-                        <CardDescription>
-                          Mettez à jour vos informations de base
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="prenom">Prénom</Label>
-                            <div className="relative">
-                              <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                              <Input
-                                id="prenom"
-                                value={formData.prenom}
-                                onChange={(e) =>
-                                  setFormData({ ...formData, prenom: e.target.value })
-                                }
-                                className="pl-9"
-                                disabled={saving}
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="nom">Nom</Label>
-                            <div className="relative">
-                              <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                              <Input
-                                id="nom"
-                                value={formData.nom}
-                                onChange={(e) =>
-                                  setFormData({ ...formData, nom: e.target.value })
-                                }
-                                className="pl-9"
-                                disabled={saving}
-                              />
-                            </div>
+                  {/* Personal Information */}
+                  <Card className="shadow-lg">
+                    <CardHeader className="border-b bg-muted/30">
+                      <CardTitle className="text-xl flex items-center gap-2">
+                        <UserIcon className="w-5 h-5 text-primary" />
+                        Informations Personnelles
+                      </CardTitle>
+                      <CardDescription>
+                        Mettez à jour vos informations de base
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="prenom" className="text-base font-semibold">Prénom *</Label>
+                          <div className="relative">
+                            <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                            <Input
+                              id="prenom"
+                              value={formData.prenom}
+                              onChange={(e) =>
+                                setFormData({ ...formData, prenom: e.target.value })
+                              }
+                              className="pl-11 h-12 text-base"
+                              disabled={saving}
+                              placeholder="Votre prénom"
+                            />
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="email">Email</Label>
+                          <Label htmlFor="nom" className="text-base font-semibold">Nom *</Label>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                            <Input
+                              id="nom"
+                              value={formData.nom}
+                              onChange={(e) =>
+                                setFormData({ ...formData, nom: e.target.value })
+                              }
+                              className="pl-11 h-12 text-base"
+                              disabled={saving}
+                              placeholder="Votre nom"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                          <Label htmlFor="email" className="text-base font-semibold">Adresse Email *</Label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                             <Input
                               id="email"
                               type="email"
@@ -309,145 +269,137 @@ const AdminProfile = () => {
                               onChange={(e) =>
                                 setFormData({ ...formData, email: e.target.value })
                               }
-                              className="pl-9"
+                              className="pl-11 h-12 text-base"
                               disabled={saving}
+                              placeholder="votre.email@example.com"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end mt-6">
+                        <Button onClick={handleSaveProfile} size="lg" disabled={saving} className="gap-2">
+                          {saving ? (
+                            <>
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              Enregistrement...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="w-5 h-5" />
+                              Enregistrer les modifications
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Security - Change Password */}
+                  <Card className="shadow-lg">
+                    <CardHeader className="border-b bg-muted/30">
+                      <CardTitle className="text-xl flex items-center gap-2">
+                        <Shield className="w-5 h-5 text-primary" />
+                        Sécurité du Compte
+                      </CardTitle>
+                      <CardDescription>
+                        Modifiez votre mot de passe pour sécuriser votre compte
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      <div className="grid grid-cols-1 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="ancien_mot_de_passe" className="text-base font-semibold">
+                            Mot de passe actuel *
+                          </Label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                            <Input
+                              id="ancien_mot_de_passe"
+                              type="password"
+                              value={passwordData.ancien_mot_de_passe}
+                              onChange={(e) =>
+                                setPasswordData({ ...passwordData, ancien_mot_de_passe: e.target.value })
+                              }
+                              className="pl-11 h-12 text-base"
+                              disabled={saving}
+                              placeholder="••••••••"
                             />
                           </div>
                         </div>
 
-                        {/* Champs masqués car les colonnes n'existent pas encore dans la base de données */}
-                        {false && (
-                          <>
-                            <div className="space-y-2">
-                              <Label htmlFor="telephone">Téléphone</Label>
-                              <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                <Input
-                                  id="telephone"
-                                  type="tel"
-                                  value={formData.telephone}
-                                  onChange={(e) =>
-                                    setFormData({ ...formData, telephone: e.target.value })
-                                  }
-                                  className="pl-9"
-                                  disabled={saving}
-                                />
-                              </div>
-                            </div>
+                        <Separator />
 
-                            <div className="space-y-2">
-                              <Label htmlFor="adresse">Adresse</Label>
-                              <div className="relative">
-                                <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                                <Input
-                                  id="adresse"
-                                  value={formData.adresse}
-                                  onChange={(e) =>
-                                    setFormData({ ...formData, adresse: e.target.value })
-                                  }
-                                  className="pl-9"
-                                  disabled={saving}
-                                />
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="bio">Biographie</Label>
-                              <Textarea
-                                id="bio"
-                                value={formData.bio}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <Label htmlFor="nouveau_mot_de_passe" className="text-base font-semibold">
+                              Nouveau mot de passe *
+                            </Label>
+                            <div className="relative">
+                              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                              <Input
+                                id="nouveau_mot_de_passe"
+                                type="password"
+                                value={passwordData.nouveau_mot_de_passe}
                                 onChange={(e) =>
-                                  setFormData({ ...formData, bio: e.target.value })
+                                  setPasswordData({ ...passwordData, nouveau_mot_de_passe: e.target.value })
                                 }
-                                rows={4}
-                                placeholder="Parlez-nous de vous..."
+                                className="pl-11 h-12 text-base"
                                 disabled={saving}
+                                placeholder="••••••••"
                               />
                             </div>
-                          </>
-                        )}
-                      </CardContent>
-                    </Card>
+                            <p className="text-xs text-muted-foreground">
+                              Minimum 6 caractères
+                            </p>
+                          </div>
 
-                    {/* Save Button */}
-                    <div className="flex justify-end">
-                      <Button onClick={handleSaveProfile} size="lg" disabled={saving}>
-                        {saving ? (
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <Save className="w-4 h-4 mr-2" />
-                        )}
-                        {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
-                      </Button>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="security" className="space-y-6">
-                    {/* Change Password */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Lock className="w-5 h-5" />
-                          Changer le mot de passe
-                        </CardTitle>
-                        <CardDescription>
-                          Modifiez votre mot de passe pour sécuriser votre compte
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="ancien_mot_de_passe">Mot de passe actuel</Label>
-                          <Input
-                            id="ancien_mot_de_passe"
-                            type="password"
-                            value={passwordData.ancien_mot_de_passe}
-                            onChange={(e) =>
-                              setPasswordData({ ...passwordData, ancien_mot_de_passe: e.target.value })
-                            }
-                            disabled={saving}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="nouveau_mot_de_passe">Nouveau mot de passe</Label>
-                          <Input
-                            id="nouveau_mot_de_passe"
-                            type="password"
-                            value={passwordData.nouveau_mot_de_passe}
-                            onChange={(e) =>
-                              setPasswordData({ ...passwordData, nouveau_mot_de_passe: e.target.value })
-                            }
-                            disabled={saving}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="confirmer_mot_de_passe">Confirmer le nouveau mot de passe</Label>
-                          <Input
-                            id="confirmer_mot_de_passe"
-                            type="password"
-                            value={passwordData.confirmer_mot_de_passe}
-                            onChange={(e) =>
-                              setPasswordData({ ...passwordData, confirmer_mot_de_passe: e.target.value })
-                            }
-                            disabled={saving}
-                          />
+                          <div className="space-y-2">
+                            <Label htmlFor="confirmer_mot_de_passe" className="text-base font-semibold">
+                              Confirmer le mot de passe *
+                            </Label>
+                            <div className="relative">
+                              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                              <Input
+                                id="confirmer_mot_de_passe"
+                                type="password"
+                                value={passwordData.confirmer_mot_de_passe}
+                                onChange={(e) =>
+                                  setPasswordData({ ...passwordData, confirmer_mot_de_passe: e.target.value })
+                                }
+                                className="pl-11 h-12 text-base"
+                                disabled={saving}
+                                placeholder="••••••••"
+                              />
+                            </div>
+                          </div>
                         </div>
 
                         <div className="flex justify-end">
-                          <Button onClick={handleChangePassword} disabled={saving}>
+                          <Button
+                            onClick={handleChangePassword}
+                            disabled={saving || !passwordData.ancien_mot_de_passe || !passwordData.nouveau_mot_de_passe}
+                            size="lg"
+                            variant="secondary"
+                            className="gap-2"
+                          >
                             {saving ? (
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Modification...
+                              </>
                             ) : (
-                              <Lock className="w-4 h-4 mr-2" />
+                              <>
+                                <Lock className="w-5 h-5" />
+                                Modifier le mot de passe
+                              </>
                             )}
-                            {saving ? 'Modification...' : 'Modifier le mot de passe'}
                           </Button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                </Tabs>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
               )}
             </div>
           </main>

@@ -4,10 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { X } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Calendar, Clock, MapPin, FileText, Image as ImageIcon, Loader2, Upload, X } from "lucide-react";
 import { Event } from "@/services/eventService";
 import { validateImageFile, uploadImage } from "@/services/uploadService";
+import { useToast } from "@/hooks/use-toast";
 
 interface EventFormProps {
   event?: Event | null;
@@ -33,6 +35,7 @@ const eventStatuses = [
 ];
 
 export const EventForm = ({ event, onSubmit, onClose, isOpen }: EventFormProps) => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     titre: '',
     description: '',
@@ -46,6 +49,7 @@ export const EventForm = ({ event, onSubmit, onClose, isOpen }: EventFormProps) 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (event) {
@@ -73,42 +77,48 @@ export const EventForm = ({ event, onSubmit, onClose, isOpen }: EventFormProps) 
       });
       setImagePreview('');
     }
-  }, [event]);
+  }, [event, isOpen]);
 
-  // Gestion de la sélection d'image
-  const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
-      // Valider le fichier
       const validation = validateImageFile(file);
       if (!validation.valid) {
-        alert(validation.message || "Fichier invalide");
+        toast({
+          title: "Fichier invalide",
+          description: validation.message || "Veuillez sélectionner une image valide.",
+          variant: "destructive",
+        });
         return;
       }
 
       setSelectedImage(file);
-      
-      // Créer un aperçu local
+
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
       };
       reader.readAsDataURL(file);
 
-      // Uploader l'image automatiquement
       setIsUploading(true);
       try {
         const token = localStorage.getItem('token') || 'Brama';
         const imageUrl = await uploadImage(file, token);
-        
-        // Mettre à jour l'URL de l'image dans le formulaire
+
         setFormData({...formData, image_url: imageUrl});
         setImagePreview(imageUrl);
-        
-        alert('Image uploadée avec succès');
+
+        toast({
+          title: "Image uploadée",
+          description: "L'image a été uploadée avec succès.",
+        });
       } catch (error) {
         console.error('Erreur lors de l\'upload:', error);
-        alert('Erreur lors de l\'upload de l\'image');
+        toast({
+          title: "Erreur d'upload",
+          description: "Impossible d'uploader l'image. Veuillez réessayer.",
+          variant: "destructive",
+        });
       } finally {
         setIsUploading(false);
       }
@@ -121,9 +131,14 @@ export const EventForm = ({ event, onSubmit, onClose, isOpen }: EventFormProps) 
     setFormData({...formData, image_url: ""});
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    setIsSaving(true);
+    try {
+      await onSubmit(formData);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -133,36 +148,49 @@ export const EventForm = ({ event, onSubmit, onClose, isOpen }: EventFormProps) 
     }));
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl flex items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-primary" />
+            </div>
             {event ? 'Modifier l\'événement' : 'Nouvel événement'}
-          </CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="w-4 h-4" />
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          </DialogTitle>
+          <DialogDescription>
+            {event ? 'Modifiez les informations de l\'événement ci-dessous.' : 'Créez un nouvel événement en remplissant le formulaire ci-dessous.'}
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Section Informations générales */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <FileText className="w-5 h-5 text-primary" />
+              Informations générales
+            </h3>
+            <Separator />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="titre">Titre *</Label>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="titre" className="text-base font-semibold">
+                  Titre de l'événement *
+                </Label>
                 <Input
                   id="titre"
                   value={formData.titre}
                   onChange={(e) => handleChange('titre', e.target.value)}
                   required
+                  className="h-11"
+                  placeholder="Ex: Conférence sur la sécurité routière"
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="type_evenement">Type d'événement</Label>
+                <Label htmlFor="type_evenement" className="text-base font-semibold">Type d'événement *</Label>
                 <Select value={formData.type_evenement} onValueChange={(value) => handleChange('type_evenement', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -174,56 +202,11 @@ export const EventForm = ({ event, onSubmit, onClose, isOpen }: EventFormProps) 
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleChange('description', e.target.value)}
-                rows={3}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="date_debut">Date de début *</Label>
-                <Input
-                  id="date_debut"
-                  type="date"
-                  value={formData.date_debut}
-                  onChange={(e) => handleChange('date_debut', e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="heure_debut">Heure de début</Label>
-                <Input
-                  id="heure_debut"
-                  type="time"
-                  value={formData.heure_debut}
-                  onChange={(e) => handleChange('heure_debut', e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="lieu">Lieu *</Label>
-                <Input
-                  id="lieu"
-                  value={formData.lieu}
-                  onChange={(e) => handleChange('lieu', e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="statut">Statut</Label>
+                <Label htmlFor="statut" className="text-base font-semibold">Statut *</Label>
                 <Select value={formData.statut} onValueChange={(value) => handleChange('statut', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -235,71 +218,170 @@ export const EventForm = ({ event, onSubmit, onClose, isOpen }: EventFormProps) 
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="image">Image de l'événement</Label>
-              
-              {/* Aperçu de l'image */}
-              {imagePreview && (
-                <div className="mb-4">
-                  <img 
-                    src={imagePreview} 
-                    alt="Aperçu" 
-                    className="w-32 h-32 object-cover rounded-lg border"
-                  />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={removeImage}
-                    className="mt-2"
-                  >
-                    Supprimer l'image
-                  </Button>
-                </div>
-              )}
-              
-              {/* Upload d'image */}
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="description" className="text-base font-semibold">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleChange('description', e.target.value)}
+                  rows={4}
+                  placeholder="Décrivez l'événement en détail..."
+                  className="resize-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section Date et Lieu */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Clock className="w-5 h-5 text-primary" />
+              Date et Lieu
+            </h3>
+            <Separator />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
+                <Label htmlFor="date_debut" className="text-base font-semibold flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Date de début *
+                </Label>
+                <Input
+                  id="date_debut"
+                  type="date"
+                  value={formData.date_debut}
+                  onChange={(e) => handleChange('date_debut', e.target.value)}
+                  required
+                  className="h-11"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="heure_debut" className="text-base font-semibold flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Heure de début
+                </Label>
+                <Input
+                  id="heure_debut"
+                  type="time"
+                  value={formData.heure_debut}
+                  onChange={(e) => handleChange('heure_debut', e.target.value)}
+                  className="h-11"
+                />
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="lieu" className="text-base font-semibold flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  Lieu de l'événement *
+                </Label>
+                <Input
+                  id="lieu"
+                  value={formData.lieu}
+                  onChange={(e) => handleChange('lieu', e.target.value)}
+                  required
+                  className="h-11"
+                  placeholder="Ex: Palais des Congrès, Niamey"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section Image */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-primary" />
+              Image de l'événement
+            </h3>
+            <Separator />
+
+            {imagePreview && (
+              <div className="relative w-full h-48 rounded-lg border-2 border-dashed border-muted-foreground/25 overflow-hidden bg-muted/30">
+                <img
+                  src={imagePreview}
+                  alt="Aperçu"
+                  className="w-full h-full object-cover"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={removeImage}
+                  className="absolute top-2 right-2"
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Supprimer
+                </Button>
+              </div>
+            )}
+
+            {!imagePreview && (
+              <div className="relative">
+                <Label htmlFor="image" className="cursor-pointer">
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 hover:border-primary/50 transition-colors bg-muted/30">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Upload className="w-8 h-8 text-primary" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-base font-semibold">Cliquez pour uploader une image</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          JPG, PNG, GIF jusqu'à 5MB
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Label>
                 <Input
                   id="image"
                   type="file"
                   accept="image/*"
                   onChange={handleImageSelect}
                   disabled={isUploading}
-                />
-                {isUploading && (
-                  <p className="text-sm text-blue-600">Upload en cours...</p>
-                )}
-                <p className="text-xs text-gray-500">
-                  JPG, PNG, GIF jusqu'à 5MB
-                </p>
-              </div>
-              
-              {/* URL manuelle (optionnel) */}
-              <div className="mt-2">
-                <Label htmlFor="image_url">Ou URL manuelle</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => handleChange('image_url', e.target.value)}
-                  placeholder="https://example.com/image.jpg"
+                  className="hidden"
                 />
               </div>
-            </div>
+            )}
 
-            <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Annuler
-              </Button>
-              <Button type="submit">
-                {event ? 'Modifier' : 'Créer'}
-              </Button>
+            {isUploading && (
+              <div className="flex items-center justify-center gap-2 text-primary p-4 bg-primary/5 rounded-lg">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="font-medium">Upload en cours...</span>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="image_url" className="text-base font-semibold">Ou URL manuelle</Label>
+              <Input
+                id="image_url"
+                value={formData.image_url}
+                onChange={(e) => handleChange('image_url', e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                className="h-11"
+              />
             </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
+              Annuler
+            </Button>
+            <Button type="submit" disabled={isSaving || isUploading} className="gap-2">
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  {event ? 'Modifier' : 'Créer'}
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };

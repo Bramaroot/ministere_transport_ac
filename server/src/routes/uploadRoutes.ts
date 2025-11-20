@@ -23,8 +23,11 @@ router.post('/image', checkAuth, (req, res) => {
     }
 
     // Retourner l'URL complète de l'image uploadée
-    const imageUrl = `http://localhost:3001/uploads/news/${req.file.filename}`;
-    
+    // Construire l'URL en fonction de l'hôte de la requête
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const imageUrl = `${protocol}://${host}/uploads/news/${req.file.filename}`;
+
     res.json({
       success: true,
       message: 'Image uploadée avec succès',

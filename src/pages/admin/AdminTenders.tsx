@@ -10,7 +10,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { AdminFooter } from "@/components/AdminFooter";
 import { TenderForm } from "@/components/TenderForm";
-import { Search, Filter, Plus, Edit, Trash2, Eye, FileText } from "lucide-react";
+import { Search, Filter, Plus, Edit, Trash2, Eye, FileText, Loader2, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
   getTenders,
   getTenderById,
@@ -29,6 +30,7 @@ import { testAuthentication, forceLogin } from "@/utils/authTest";
 
 const AdminTenders = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -122,10 +124,17 @@ const AdminTenders = () => {
       try {
         await deleteTender(tenderId);
         await fetchTenders();
-        alert('Appel d\'offres supprimé avec succès');
+        toast({
+          title: "Succès",
+          description: "Appel d'offres supprimé avec succès.",
+        });
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
-        alert('Erreur lors de la suppression de l\'appel d\'offres');
+        toast({
+          title: "Erreur",
+          description: "Erreur lors de la suppression de l'appel d'offres.",
+          variant: "destructive",
+        });
       }
     }
   };
@@ -144,16 +153,26 @@ const AdminTenders = () => {
     try {
       if (editingTender) {
         await updateTender(editingTender.id, tenderData);
-        alert('Appel d\'offres modifié avec succès');
+        toast({
+          title: "Succès",
+          description: "Appel d'offres modifié avec succès.",
+        });
       } else {
         await createTender(tenderData);
-        alert('Appel d\'offres créé avec succès');
+        toast({
+          title: "Succès",
+          description: "Appel d'offres créé avec succès.",
+        });
       }
       await fetchTenders();
       handleCloseForms();
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      alert(`Erreur lors de la sauvegarde de l'appel d'offres: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+      toast({
+        title: "Erreur",
+        description: `Erreur lors de la sauvegarde de l'appel d'offres: ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
+        variant: "destructive",
+      });
     }
   };
 
@@ -190,27 +209,6 @@ const AdminTenders = () => {
         return 'bg-gray-500';
     }
   };
-
-  if (loading) {
-    return (
-      <SidebarProvider>
-        <div className="min-h-screen flex w-full">
-          <AdminSidebar />
-          <div className="flex-1 flex flex-col">
-            <div className="flex-1 bg-gray-50">
-              <div className="container py-8">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-                  <p className="mt-4 text-muted-foreground">Chargement des appels d'offres...</p>
-                </div>
-              </div>
-            </div>
-            <AdminFooter />
-          </div>
-        </div>
-      </SidebarProvider>
-    );
-  }
 
   return (
     <SidebarProvider>
@@ -307,7 +305,39 @@ const AdminTenders = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {tenders.map((tender) => (
+                        {loading ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-12">
+                              <div className="flex items-center justify-center gap-2">
+                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                <span>Chargement des appels d'offres...</span>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ) : error ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-12">
+                              <div className="flex flex-col items-center gap-4">
+                                <AlertCircle className="w-12 h-12 text-red-500" />
+                                <p className="text-red-500">{error}</p>
+                                <Button onClick={fetchTenders}>Réessayer</Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ) : tenders.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-12">
+                              <div className="flex flex-col items-center gap-4">
+                                <FileText className="w-12 h-12 text-muted-foreground" />
+                                <p className="text-muted-foreground">Aucun appel d'offres trouvé</p>
+                                <Button onClick={handleAddTender}>
+                                  <Plus className="w-4 h-4 mr-2" />
+                                  Créer un appel d'offres
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ) : tenders.map((tender) => (
                           <TableRow key={tender.id}>
                             <TableCell>
                               <div className="font-mono text-sm">

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,355 +19,288 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { AdminFooter } from "@/components/AdminFooter";
-import { Eye, Search, Filter, Download } from "lucide-react";
-import RequestDetailsModal from "./RequestDetailsModal";
+import { Eye, Search, FileCheck, RefreshCw, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, ServerCrash } from "lucide-react";
+import PermisInternationalDetailModal from "@/components/admin/PermisInternationalDetailModal";
+import TreatmentModal from "@/components/TreatmentModal";
+import { getPermisInternationalApplications, updatePermisInternationalApplicationStatus } from "@/services/adminService";
+import { useToast } from "@/hooks/use-toast";
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { useDebounce } from "@/hooks/use-debounce";
+import { cn } from "@/lib/utils";
+
+const statusDetails = {
+    en_attente: { label: "En attente", className: "bg-orange-100 text-orange-800 border-orange-200", icon: "" },
+    approuvee: { label: "Approuvé", className: "bg-green-100 text-green-800 border-green-200", icon: "" },
+    traitee: { label: "Traité", className: "bg-blue-100 text-blue-800 border-blue-200", icon: "" },
+    rejetee: { label: "Rejeté", className: "bg-red-100 text-red-800 border-red-200", icon: "" },
+};
 
 const EServicesAdmin = () => {
-    const navigate = useNavigate();
+    const [requests, setRequests] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
     const [selectedRequest, setSelectedRequest] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [isTreatmentModalOpen, setIsTreatmentModalOpen] = useState(false);
+    
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
+    
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalRequests, setTotalRequests] = useState(0);
+    const itemsPerPage = 10;
+
+    const { toast } = useToast();
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+    const fetchRequests = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const status = statusFilter === 'all' ? '' : statusFilter;
+            const data = await getPermisInternationalApplications(currentPage, itemsPerPage, debouncedSearchTerm, status);
+            setRequests(data.applications);
+            setTotalPages(data.totalPages);
+            setTotalRequests(data.totalApplications);
+        } catch (err) {
+            setError("Impossible de charger les demandes. Veuillez réessayer plus tard.");
+            toast({
+                title: "Erreur de chargement",
+                description: "La connexion avec le serveur a échoué.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    }, [currentPage, debouncedSearchTerm, statusFilter, toast]);
 
     useEffect(() => {
-        // Route protégée par AdminRoute
-    }, []);
-
-    // Données simulées des demandes de permis international
-    const mockRequests = [
-        {
-            id: "REQ-001",
-            nom: "Diallo",
-            prenom: "Aminata",
-            dateNaissance: "1985-03-15",
-            telephone: "+227 90 12 34 56",
-            email: "aminata.diallo@email.com",
-            numeroPermisNational: "PER-2023-001234",
-            categoriePermis: "B",
-            dateDelivrancePermis: "2023-01-15",
-            lieuDelivrancePermis: "Niamey",
-            numeroAncienPermis: "INT-2020-567890",
-            dateDelivranceAncien: "2020-06-10",
-            dateExpirationAncien: "2025-06-10",
-            statut: "en_attente",
-            dateSoumission: "2024-01-15T10:30:00Z",
-            documents: {
-                copiePermisNational: "permis_national_aminata.pdf",
-                copieAncienPermis: "ancien_permis_aminata.pdf",
-                photosIdentite: ["photo1_aminata.jpg", "photo2_aminata.jpg"]
-            }
-        },
-        {
-            id: "REQ-002",
-            nom: "Moussa",
-            prenom: "Ibrahim",
-            dateNaissance: "1990-07-22",
-            telephone: "+227 80 45 67 89",
-            email: "ibrahim.moussa@email.com",
-            numeroPermisNational: "PER-2022-002345",
-            categoriePermis: "A, B",
-            dateDelivrancePermis: "2022-08-20",
-            lieuDelivrancePermis: "Zinder",
-            numeroAncienPermis: null,
-            dateDelivranceAncien: null,
-            dateExpirationAncien: null,
-            statut: "traite",
-            dateSoumission: "2024-01-10T14:20:00Z",
-            documents: {
-                copiePermisNational: "permis_national_ibrahim.pdf",
-                copieAncienPermis: null,
-                photosIdentite: ["photo1_ibrahim.jpg", "photo2_ibrahim.jpg"]
-            }
-        },
-        {
-            id: "REQ-003",
-            nom: "Oumarou",
-            prenom: "Fatima",
-            dateNaissance: "1988-12-05",
-            telephone: "+227 95 78 90 12",
-            email: "fatima.oumarou@email.com",
-            numeroPermisNational: "PER-2023-003456",
-            categoriePermis: "B, C",
-            dateDelivrancePermis: "2023-03-10",
-            lieuDelivrancePermis: "Maradi",
-            numeroAncienPermis: "INT-2019-123456",
-            dateDelivranceAncien: "2019-04-15",
-            dateExpirationAncien: "2024-04-15",
-            statut: "rejete",
-            dateSoumission: "2024-01-05T09:15:00Z",
-            documents: {
-                copiePermisNational: "permis_national_fatima.pdf",
-                copieAncienPermis: "ancien_permis_fatima.pdf",
-                photosIdentite: ["photo1_fatima.jpg", "photo2_fatima.jpg"]
-            }
-        },
-        {
-            id: "REQ-004",
-            nom: "Yacouba",
-            prenom: "Mariam",
-            dateNaissance: "1992-05-18",
-            telephone: "+227 85 23 45 67",
-            email: "mariam.yacouba@email.com",
-            numeroPermisNational: "PER-2023-004567",
-            categoriePermis: "B",
-            dateDelivrancePermis: "2023-05-25",
-            lieuDelivrancePermis: "Tahoua",
-            numeroAncienPermis: null,
-            dateDelivranceAncien: null,
-            dateExpirationAncien: null,
-            statut: "en_attente",
-            dateSoumission: "2024-01-20T16:45:00Z",
-            documents: {
-                copiePermisNational: "permis_national_mariam.pdf",
-                copieAncienPermis: null,
-                photosIdentite: ["photo1_mariam.jpg", "photo2_mariam.jpg"]
-            }
-        }
-    ];
-
-    const getStatusBadge = (status) => {
-        const statusConfig = {
-            en_attente: { label: "En attente", variant: "secondary" },
-            traite: { label: "Traité", variant: "default" },
-            rejete: { label: "Rejeté", variant: "destructive" },
-            approuve: { label: "Approuvé", variant: "default" }
-        };
-
-        const config = statusConfig[status] || { label: status, variant: "secondary" };
-        return <Badge variant={config.variant}>{config.label}</Badge>;
-    };
-
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('fr-FR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
+        fetchRequests();
+    }, [fetchRequests]);
 
     const handleViewRequest = (request) => {
         setSelectedRequest(request);
-        setIsModalOpen(true);
+        setIsDetailModalOpen(true);
     };
 
-    const filteredRequests = mockRequests.filter(request => {
-        const matchesSearch =
-            request.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            request.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            request.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            request.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const handleTreatRequest = (request) => {
+        console.log("handleTreatRequest appelé avec:", request);
+        setSelectedRequest(request);
+        setIsTreatmentModalOpen(true);
+        console.log("isTreatmentModalOpen devrait être true maintenant");
+    };
 
-        const matchesStatus = statusFilter === "all" || request.statut === statusFilter;
+    const handleStatusChange = async (requestId, newStatus, comment) => {
+        try {
+            await updatePermisInternationalApplicationStatus(requestId, newStatus, comment);
+            toast({
+                title: "Statut mis à jour",
+                description: "La demande a été mise à jour avec succès.",
+            });
+            fetchRequests(); // Re-fetch data to reflect changes
+        } catch (error) {
+            toast({
+                title: "Erreur",
+                description: "La mise à jour du statut a échoué.",
+                variant: "destructive",
+            });
+        }
+    };
 
-        return matchesSearch && matchesStatus;
-    });
+    const getStatusBadge = (status) => {
+        const config = statusDetails[status] || { label: status, className: "bg-gray-100 text-gray-700", icon: "•" };
+        return (
+            <Badge variant="outline" className={cn("font-medium", config.className)}>
+                <span className="mr-1.5">{config.icon}</span>
+                {config.label}
+            </Badge>
+        );
+    };
+
+    const Pagination = () => (
+        <div className="flex items-center justify-between p-4 border-t">
+            <span className="text-sm text-muted-foreground">
+                Page {currentPage} sur {totalPages} ({totalRequests} demandes)
+            </span>
+            <div className="flex items-center gap-2">
+                <Button variant="outline" size="icon" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                    <ChevronsLeft className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
+                    <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="px-2 text-sm font-medium">{currentPage}</span>
+                <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
+                    <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                    <ChevronsRight className="h-4 w-4" />
+                </Button>
+            </div>
+        </div>
+    );
 
     return (
-        <SidebarProvider>
-            <div className="min-h-screen flex w-full">
-                <AdminSidebar />
-
-                <div className="flex-1 flex flex-col">
-                    {/* Main Content */}
-                    <main className="flex-1 bg-muted/30">
-                        <div className="glass-card border-b sticky top-0 z-40 mb-8">
-                            <div className="container py-4">
-                                <div className="flex items-center gap-4">
-                                    <SidebarTrigger />
-                                    <Link to="/" className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
-                                            <span className="text-primary-foreground font-bold">
-                                                NE
-                                            </span>
+        <div className="min-h-screen flex w-full bg-muted/30">
+            <AdminSidebar />
+            <div className="flex-1 flex flex-col">
+                <header className="bg-background/80 backdrop-blur-sm border-b sticky top-0 z-30">
+                    <div className="container py-3">
+                        <h1 className="text-2xl font-bold tracking-tight">Gestion des E-Services</h1>
+                        <p className="text-muted-foreground text-sm">
+                            Administration des demandes de permis de conduire international.
+                        </p>
+                    </div>
+                </header>
+                
+                <main className="flex-1 p-4 sm:p-6">
+                    <div className="space-y-6">
+                        {/* Filters and search */}
+                        <Card>
+                            <CardContent className="p-4">
+                                <div className="flex flex-col md:flex-row gap-4">
+                                    <div className="flex-1">
+                                        <div className="relative">
+                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                                            <Input
+                                                placeholder="Rechercher par nom, email ou référence..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="pl-10"
+                                            />
                                         </div>
-                                        <div>
-                                            <div className="font-bold text-sm">
-                                                Ministère des Transports
-                                            </div>
-                                            <div className="text-xs text-muted-foreground">
-                                                Administration
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="container py-8">
-                            <div className="space-y-6">
-                                {/* En-tête */}
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <h1 className="text-3xl font-bold">E-Services</h1>
-                                        <p className="text-muted-foreground">
-                                            Gestion des demandes de permis international
-                                        </p>
                                     </div>
-                                    <div className="flex gap-2">
-                                        <Button variant="outline" size="sm">
-                                            <Download className="w-4 h-4 mr-2" />
-                                            Exporter
-                                        </Button>
+                                    <div className="w-full md:w-48">
+                                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Filtrer par statut" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">Tous les statuts</SelectItem>
+                                                <SelectItem value="en_attente">En attente</SelectItem>
+                                                <SelectItem value="approuvee">Approuvé</SelectItem>
+                                                <SelectItem value="traitee">Traité</SelectItem>
+                                                <SelectItem value="rejetee">Rejeté</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
+                                    <Button variant="ghost" onClick={fetchRequests}>
+                                        <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                                    </Button>
                                 </div>
+                            </CardContent>
+                        </Card>
 
-                                {/* Statistiques */}
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    <Card>
-                                        <CardContent className="p-4">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-muted-foreground">Total demandes</p>
-                                                    <p className="text-2xl font-bold">{mockRequests.length}</p>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card>
-                                        <CardContent className="p-4">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-muted-foreground">En attente</p>
-                                                    <p className="text-2xl font-bold text-orange-600">
-                                                        {mockRequests.filter(r => r.statut === 'en_attente').length}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card>
-                                        <CardContent className="p-4">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-muted-foreground">Traitées</p>
-                                                    <p className="text-2xl font-bold text-green-600">
-                                                        {mockRequests.filter(r => r.statut === 'traite').length}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card>
-                                        <CardContent className="p-4">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-muted-foreground">Rejetées</p>
-                                                    <p className="text-2xl font-bold text-red-600">
-                                                        {mockRequests.filter(r => r.statut === 'rejete').length}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-
-                                {/* Filtres et recherche */}
-                                <Card>
-                                    <CardContent className="p-4">
-                                        <div className="flex flex-col md:flex-row gap-4">
-                                            <div className="flex-1">
-                                                <div className="relative">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                                                    <Input
-                                                        placeholder="Rechercher par nom, prénom, email ou ID..."
-                                                        value={searchTerm}
-                                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-10"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="w-full md:w-48">
-                                                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Filtrer par statut" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="all">Tous les statuts</SelectItem>
-                                                        <SelectItem value="en_attente">En attente</SelectItem>
-                                                        <SelectItem value="traite">Traité</SelectItem>
-                                                        <SelectItem value="rejete">Rejeté</SelectItem>
-                                                        <SelectItem value="approuve">Approuvé</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                {/* Tableau des demandes */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Demandes de Permis International</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="overflow-x-auto">
-                                            <Table>
-                                                <TableHeader>
-                                                    <TableRow>
-                                                        <TableHead>ID</TableHead>
-                                                        <TableHead>Nom complet</TableHead>
-                                                        <TableHead>Email</TableHead>
-                                                        <TableHead>Téléphone</TableHead>
-                                                        <TableHead>Permis national</TableHead>
-                                                        <TableHead>Statut</TableHead>
-                                                        <TableHead>Date soumission</TableHead>
-                                                        <TableHead>Actions</TableHead>
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    {filteredRequests.map((request) => (
-                                                        <TableRow key={request.id}>
-                                                            <TableCell className="font-medium">{request.id}</TableCell>
-                                                            <TableCell>{request.prenom} {request.nom}</TableCell>
-                                                            <TableCell>{request.email}</TableCell>
-                                                            <TableCell>{request.telephone}</TableCell>
-                                                            <TableCell>{request.numeroPermisNational}</TableCell>
-                                                            <TableCell>{getStatusBadge(request.statut)}</TableCell>
-                                                            <TableCell>{formatDate(request.dateSoumission)}</TableCell>
-                                                            <TableCell>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    onClick={() => handleViewRequest(request)}
-                                                                >
-                                                                    <Eye className="w-4 h-4 mr-2" />
-                                                                    Visualiser
+                        {/* Table of requests */}
+                        <Card className="shadow-sm">
+                            <CardHeader className="border-b">
+                                <CardTitle>Demandes de Permis International</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className="w-16 text-center">#</TableHead>
+                                                <TableHead>Demandeur</TableHead>
+                                                <TableHead>Contact</TableHead>
+                                                <TableHead>Soumission</TableHead>
+                                                <TableHead>Statut</TableHead>
+                                                <TableHead className="text-right">Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {isLoading ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="text-center h-48">
+                                                        <Loader2 className="w-8 h-8 mx-auto animate-spin text-primary" />
+                                                        <p className="mt-2 text-muted-foreground">Chargement des demandes...</p>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : error ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="text-center h-48">
+                                                        <ServerCrash className="w-8 h-8 mx-auto text-destructive" />
+                                                        <p className="mt-2 text-destructive font-semibold">{error}</p>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : requests.length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="text-center h-48">
+                                                        <Search className="w-8 h-8 mx-auto text-muted-foreground" />
+                                                        <h3 className="mt-2 text-lg font-semibold">Aucune demande trouvée</h3>
+                                                        <p className="text-muted-foreground">Essayez de modifier vos filtres.</p>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : (
+                                                requests.map((request, index) => (
+                                                    <TableRow key={request.id}>
+                                                        <TableCell className="text-center font-medium text-muted-foreground">
+                                                            {(currentPage - 1) * itemsPerPage + index + 1}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="font-semibold">{request.demandeur_details?.nom_complet}</div>
+                                                            <div className="text-xs text-muted-foreground font-mono">{request.reference}</div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="text-sm">{request.demandeur_details?.email}</div>
+                                                            <div className="text-xs text-muted-foreground">{request.demandeur_details?.telephone}</div>
+                                                        </TableCell>
+                                                        <TableCell className="text-sm text-muted-foreground">
+                                                            {format(new Date(request.created_at), 'dd/MM/yyyy HH:mm')}
+                                                        </TableCell>
+                                                        <TableCell>{getStatusBadge(request.statut)}</TableCell>
+                                                        <TableCell className="text-right">
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                <Button variant="outline" size="sm" onClick={() => handleViewRequest(request)} className="gap-2">
+                                                                    <Eye className="w-4 h-4" />
+                                                                    <span className="hidden sm:inline">Voir</span>
                                                                 </Button>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </div>
-
-                                        {filteredRequests.length === 0 && (
-                                            <div className="text-center py-8 text-muted-foreground">
-                                                Aucune demande trouvée
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-
-                                {/* Modal de visualisation */}
-                                {selectedRequest && (
-                                    <RequestDetailsModal
-                                        isOpen={isModalOpen}
-                                        onClose={() => setIsModalOpen(false)}
-                                        request={selectedRequest}
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    </main>
-
-                    <AdminFooter />
-                </div>
+                                                                {request.statut === 'en_attente' && (
+                                                                    <Button size="sm" onClick={() => handleTreatRequest(request)} className="gap-2">
+                                                                        <FileCheck className="w-4 h-4" />
+                                                                        <span className="hidden sm:inline">Traiter</span>
+                                                                    </Button>
+                                                                )}
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                {totalPages > 1 && <Pagination />}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </main>
+                <AdminFooter />
             </div>
-        </SidebarProvider>
+
+            {/* Modals */}
+            {selectedRequest && (
+                <>
+                    <PermisInternationalDetailModal
+                        isOpen={isDetailModalOpen}
+                        onClose={() => setIsDetailModalOpen(false)}
+                        request={selectedRequest}
+                        onStatusChange={handleStatusChange}
+                    />
+                    <TreatmentModal
+                        isOpen={isTreatmentModalOpen}
+                        onClose={() => setIsTreatmentModalOpen(false)}
+                        request={selectedRequest}
+                        onStatusChange={handleStatusChange}
+                    />
+                </>
+            )}
+        </div>
     );
 };
 

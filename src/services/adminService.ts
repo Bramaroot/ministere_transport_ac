@@ -34,9 +34,9 @@ export const getPermisInternationalApplicationById = async (id: number) => {
     }
 };
 
-export const updatePermisInternationalApplicationStatus = async (id: number, status: string) => {
+export const updatePermisInternationalApplicationStatus = async (id: number, status: string, comment?: string) => {
     try {
-        const response = await api.put(`/admin/demandes/permis-international/${id}/status`, { status });
+        const response = await api.put(`/admin/demandes/permis-international/${id}/status`, { status, comment });
         return response.data;
     } catch (error) {
         console.error(`Erreur lors de la mise à jour du statut de la demande ${id}:`, error);

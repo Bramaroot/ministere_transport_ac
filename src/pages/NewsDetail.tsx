@@ -107,13 +107,18 @@ const NewsDetail = () => {
               </Button>
             </div>
 
-            <div className="relative aspect-video rounded-lg overflow-hidden mb-8 animate-scale-in bg-muted">
-              <img
-                src={article.url_image || 'https://via.placeholder.com/1200x600?text=Image+non+disponible'}
-                alt={article.titre}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            {article.url_image && (
+              <div className="relative aspect-video rounded-lg overflow-hidden mb-8 animate-scale-in bg-muted">
+                <img
+                  src={article.url_image}
+                  alt={article.titre}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/1200x600?text=Image+non+disponible';
+                  }}
+                />
+              </div>
+            )}
 
             <div 
               className="prose prose-lg max-w-none mb-12 animate-fade-in"
