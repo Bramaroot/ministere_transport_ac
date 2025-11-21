@@ -10,7 +10,8 @@ const MinisterMessage = () => {
             Message du Ministre
           </h2>
           <p className="text-muted-foreground text-lg">
-            Vision stratégique et engagement institutionnel pour le développement des transports au Niger
+            Vision stratégique et engagement institutionnel pour le
+            développement des transports au Niger
           </p>
         </div>
 
@@ -25,11 +26,12 @@ const MinisterMessage = () => {
                       src="/Mr le Ministre.jpeg"
                       alt="Ministre des Transports"
                       className="w-full h-full object-cover"
-
                     />
                   </div>
                   <div className="mt-4 text-center">
-                    <h3 className="font-bold text-xl">Colonel - Major Abdourahamane Amadaou</h3>
+                    <h3 className="font-bold text-xl">
+                      Colonel - Major Abdourahamane Amadou
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       Ministre des Transports et de l'Aviation Civile
                     </p>
@@ -48,14 +50,22 @@ const MinisterMessage = () => {
                     Chers Concitoyens, Chers Partenaires,
                   </p>
                   <p>
-                    Le secteur des transports est l'un des piliers fondamentaux du développement économique et social de notre pays.
-                    Il est le vecteur de notre unité nationale, le lien entre nos régions, et la clé de voûte de notre intégration
-                    économique sous régionale. C'est avec un profond sentiment d'honneur et une lourde responsabilité que je m'adresse
-                    à vous aujourd'hui en tant que Ministre des Transports.
+                    Le secteur des transports est l'un des piliers fondamentaux
+                    du développement économique et social de notre pays. Il est
+                    le vecteur de notre unité nationale, le lien entre nos
+                    régions, et la clé de voûte de notre intégration économique
+                    sous régionale. C'est avec un profond sentiment d'honneur et
+                    une lourde responsabilité que je m'adresse à vous
+                    aujourd'hui en tant que Ministre des Transports.
                   </p>
                   <p>
-                    Notre vision est claire : <strong className="text-foreground">faire du Niger un hub logistique de référence en Afrique de l'Ouest</strong>,
-                    grâce à un réseau de transports moderne, sûr, durable et accessible à tous.
+                    Notre vision est claire :{" "}
+                    <strong className="text-foreground">
+                      faire du Niger un hub logistique de référence en Afrique
+                      de l'Ouest
+                    </strong>
+                    , grâce à un réseau de transports moderne, sûr, durable et
+                    accessible à tous.
                   </p>
 
                   {/* <div className="space-y-3">
@@ -113,10 +123,9 @@ const MinisterMessage = () => {
                     </div>
                   </div> */}
 
-
-
                   <p className="font-semibold text-foreground pt-4">
-                    Je vous remercie de votre confiance et de votre engagement à nos côtés.
+                    Je vous remercie de votre confiance et de votre engagement à
+                    nos côtés.
                   </p>
                 </div>
               </div>
