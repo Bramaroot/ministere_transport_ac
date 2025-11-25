@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,13 +11,14 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { AdminFooter } from "@/components/AdminFooter";
 import { EventForm } from "@/components/EventForm";
-import { Calendar, Clock, MapPin, Users, Search, Filter, Plus, Edit, Trash2, Eye, Upload } from "lucide-react";
-import { getEvents, getEventById, createEvent, updateEvent, deleteEvent, Event, EventFilters, formatEventDate, formatEventTime, getEventTypeLabel, getEventStatusLabel } from "@/services/eventService";
+import { Calendar, Clock, MapPin, Users, Search, Filter, Plus, Edit, Trash2, Eye } from "lucide-react";
+import { getEvents, createEvent, updateEvent, deleteEvent, Event, EventFilters, formatEventDate, formatEventTime, getEventTypeLabel, getEventStatusLabel } from "@/services/eventService";
 import { uploadEventImage } from "@/services/uploadService";
-import ImageUpload from "@/components/ImageUpload";
+import { toast } from "sonner";
 
 const AdminEvents = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth(); // Correction: Ajout du hook useAuth
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -107,17 +109,17 @@ const AdminEvents = () => {
 
   const handleDeleteEvent = async (eventId: number) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
-      try {await deleteEvent(eventId, token);
+      try {
+        await deleteEvent(eventId); // Correction: Le token n'est pas nécessaire
         await fetchEvents(); // Recharger la liste
-        alert('Événement supprimé avec succès');
+        toast.success('Événement supprimé', { description: 'L\'événement a été supprimé avec succès.' });
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
         
         if (error instanceof Error && error.message.includes('401')) {
-          alert('Session expirée. Veuillez vous reconnecter.');
-          // Route protégée par AdminRoute
+          toast.error('Session expirée', { description: 'Veuillez vous reconnecter.' });
         } else {
-          alert('Erreur lors de la suppression de l\'événement');
+          toast.error('Erreur', { description: 'Erreur lors de la suppression de l\'événement.' });
         }
       }
     }
@@ -145,37 +147,27 @@ const AdminEvents = () => {
 
   const handleFormSubmit = async (eventData: any) => {
     try {
-      // Vérifier l'authentification
-      console.log('État d\'authentification:', {
-        isAuthenticated,
-        token,
-        hasToken: !!token
-      });console.log('Données à envoyer:', eventData);
-      console.log('Token utilisé:', token);
+      if (!isAuthenticated) {
+        toast.error('Session expirée', { description: 'Veuillez vous reconnecter.' });
+        return;
+      }
 
       if (editingEvent) {
-        console.log('Mise à jour de l\'événement:', editingEvent.id);
-        const result = await updateEvent(editingEvent.id, eventData, token);
-        console.log('Résultat de la mise à jour:', result);
-        alert('Événement modifié avec succès');
+        await updateEvent(editingEvent.id, eventData); // Correction: Le token n'est pas nécessaire
+        toast.success('Événement modifié', { description: 'L\'événement a été modifié avec succès.' });
       } else {
-        console.log('Création d\'un nouvel événement');
-        const result = await createEvent(eventData, token);
-        console.log('Résultat de la création:', result);
-        alert('Événement créé avec succès');
+        await createEvent(eventData); // Correction: Le token n'est pas nécessaire
+        toast.success('Événement créé', { description: 'Le nouvel événement a été créé avec succès.' });
       }
       await fetchEvents(); // Recharger la liste
       handleCloseForms();
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      console.error('Détails de l\'erreur:', error);
       
-      // Vérifier si c'est une erreur d'authentification
       if (error instanceof Error && error.message.includes('401')) {
-        alert('Session expirée. Veuillez vous reconnecter.');
-        // Route protégée par AdminRoute
+        toast.error('Session expirée', { description: 'Veuillez vous reconnecter.' });
       } else {
-        alert(`Erreur lors de la sauvegarde de l'événement: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+        toast.error('Erreur', { description: `Erreur lors de la sauvegarde de l'événement: ${error instanceof Error ? error.message : 'Erreur inconnue'}` });
       }
     }
   };
@@ -196,7 +188,7 @@ const AdminEvents = () => {
   };
 
   const getEventTypeColor = (type: string) => {
-    switch (type) {
+      switch (type) {
       case 'conference':
         return 'bg-blue-500';
       case 'seminaire':
@@ -390,25 +382,6 @@ const AdminEvents = () => {
                           title="Modifier l'événement"
                         >
                           <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => {
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'image/*';
-                            input.onchange = (e) => {
-                              const file = (e.target as HTMLInputElement).files?.[0];
-                              if (file) {
-                                handleImageUpload(event.id, file);
-                              }
-                            };
-                            input.click();
-                          }}
-                          title="Uploader une image"
-                        >
-                          <Upload className="w-4 h-4" />
                         </Button>
                         <Button 
                           variant="ghost" 

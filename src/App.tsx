@@ -65,7 +65,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
+      <Sonner position="bottom-center" />
       <BrowserRouter>
         <AuthProvider> {/* Must be inside BrowserRouter to use useNavigate */}
           <Suspense fallback={<PageLoader />}>

@@ -128,7 +128,7 @@ export const getPermisInternationalStatus = async (req: Request, res: Response) 
 
     try {
         const result = await pool.query(
-            'SELECT status, created_at, updated_at FROM demandes_permis_international WHERE code_suivi = $1',
+            'SELECT status, created_at, updated_at, description FROM demandes_permis_international WHERE code_suivi = $1',
             [codeSuivi]
         );
 
@@ -245,18 +245,12 @@ export const updatePermisInternationalStatus = async (req: Request, res: Respons
 
     try {
         const result = await pool.query(
-            'UPDATE demandes_permis_international SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
-            [status, id]
+            'UPDATE demandes_permis_international SET status = $1, description = $2, updated_at = NOW() WHERE id = $3 RETURNING *',
+            [status, comment, id]
         );
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Demande non trouvée.' });
         }
-
-        // If there's a comment, log it (you can store it in a comments table if needed)
-        if (comment) {
-            console.log(`Comment for application ${id}: ${comment}`);
-        }
-
         res.status(200).json({ success: true, data: result.rows[0] });
     } catch (error) {
         console.error("Erreur lors de la mise à jour du statut de la demande:", error);

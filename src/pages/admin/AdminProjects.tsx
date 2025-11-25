@@ -399,7 +399,7 @@ const AdminProjects = () => {
                                 size="sm"
                                 onClick={() => window.open(`/projets/${project.id}`, '_blank')}
                               >
-                                <Eye className="w-4 h-4" />
+                                <Eye className="w-4h-4" />
                               </Button>
                               <Button
                                 variant="ghost"
@@ -407,25 +407,6 @@ const AdminProjects = () => {
                                 onClick={() => openDialog(project)}
                               >
                                 <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  const input = document.createElement('input');
-                                  input.type = 'file';
-                                  input.accept = 'image/*';
-                                  input.onchange = (e) => {
-                                    const file = (e.target as HTMLInputElement).files?.[0];
-                                    if (file) {
-                                      handleImageUpload(project.id, file);
-                                    }
-                                  };
-                                  input.click();
-                                }}
-                                title="Uploader une image"
-                              >
-                                <Upload className="w-4 h-4" />
                               </Button>
                               <Button
                                 variant="ghost"
@@ -476,18 +457,7 @@ const AdminProjects = () => {
               <Separator />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="id" className="text-base font-semibold">ID du projet *</Label>
-                  <Input
-                    id="id"
-                    value={formData.id}
-                    onChange={(e) => setFormData({...formData, id: e.target.value})}
-                    placeholder="ex: projet-route-niamey"
-                    className="h-11"
-                  />
-                </div>
-
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="title" className="text-base font-semibold">Titre *</Label>
                   <Input
                     id="title"

@@ -1,108 +1,81 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { Lock, Mail, Shield } from "lucide-react";
-import AdminLogin2FA from "@/components/AdminLogin2FA";
+import { toast } from "sonner";
+import { Lock, Mail, Timer } from "lucide-react";
 import { authService } from "@/services/authService";
+import { AxiosError } from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [use2FA, setUse2FA] = useState(false);
+  const [isRateLimited, setIsRateLimited] = useState(false);
+  const [countdown, setCountdown] = useState(60);
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { login } = useAuth();
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isRateLimited && countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    } else if (isRateLimited && countdown === 0) {
+      setIsRateLimited(false);
+      setCountdown(60); // Reset for next time
+    }
+    return () => clearTimeout(timer);
+  }, [isRateLimited, countdown]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Déterminer si c'est un admin (email avec @)
-      const isAdmin = email.includes("@");
+      const response = await authService.login(email, password);
 
-      if (isAdmin) {
-        // Flux 2FA pour les admins
-        const response = await fetch('/api/auth/admin/login-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            identifiant: email,
-            mot_de_passe: password
-          })
+      if (response.success && response.accessToken && response.user) {
+        login(response.accessToken, response.user);
+        toast.success("Connexion réussie", {
+          description: "Bienvenue dans votre espace.",
         });
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        if (data.success) {
-          // Identifiants corrects, stocker temporairement l'email pour la 2FA
-          localStorage.setItem('admin_email', email);
-          setUse2FA(true);
-          toast({
-            title: "Identifiants corrects",
-            description: "Code de vérification envoyé à votre email",
-          });
+        if (response.user.role === 'admin') {
+          navigate("/mtac-dash-admin");
         } else {
-          toast({
-            title: "Erreur de connexion",
-            description: data.message || "Identifiants incorrects",
-            variant: "destructive",
-          });
+          navigate("/");
         }
       } else {
-        // Flux standard pour les utilisateurs normaux (sans 2FA)
-        const response = await authService.login(email, password);
-
-        if (response.success && response.accessToken && response.user) {
-          // Mettre à jour le contexte d'authentification
-          login(response.accessToken, response.user);
-
-          toast({
-            title: "Connexion réussie",
-            description: "Bienvenue dans votre espace",
-          });
-
-          // Rediriger selon le rôle
-          if (response.user.role === 'admin') {
-            navigate("/mtac-dash-admin");
-          } else {
-            navigate("/");
-          }
-        } else {
-          toast({
-            title: "Erreur de connexion",
-            description: response.message || "Identifiants incorrects",
-            variant: "destructive",
-          });
-        }
+        toast.error("Erreur de connexion", {
+          description: response.message || "Identifiants incorrects.",
+          classNames: {
+            title: 'text-red-500',
+            description: 'text-red-400',
+          },
+        });
       }
     } catch (error) {
+      if (error instanceof AxiosError && error.response?.status === 429) {
+        // C'est une erreur de rate limiting, gérée par l'UI du compte à rebours
+        setIsRateLimited(true);
+      } else {
+        // C'est une autre erreur
+        toast.error("Erreur de connexion", {
+          description: "Identifiants incorrects ou problème serveur.",
+          classNames: {
+            title: 'text-red-500',
+            description: 'text-red-400',
+          },
+        });
+      }
       console.error('Erreur de connexion:', error);
-      toast({
-        title: "Erreur de connexion",
-        description: error instanceof Error ? error.message : "Impossible de se connecter au serveur",
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }
   };
-
-  // Si 2FA est activé, afficher le composant 2FA
-  if (use2FA) {
-    return <AdminLogin2FA />;
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4">
@@ -130,6 +103,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
                   required
+                  disabled={isRateLimited}
                 />
               </div>
             </div>
@@ -145,26 +119,26 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
                   required
+                  disabled={isRateLimited}
                 />
               </div>
             </div>
-            <Button
-              type="submit"
-              className="w-full gradient-primary"
-              disabled={isLoading}
-            >
-              {isLoading ? "Connexion..." : "Se connecter"}
-            </Button>
 
-            <div className="text-sm text-center text-muted-foreground">
-
-              <div className="mt-2 p-2 bg-blue-50 rounded-md">
-                <div className="flex items-center text-blue-800 text-xs">
-                  <Shield className="mr-1 h-3 w-3" />
-                  Les administrateurs utilisent l'authentification à deux facteurs
-                </div>
+            {isRateLimited ? (
+              <div className="flex flex-col items-center justify-center text-center bg-destructive/10 text-destructive p-3 rounded-md">
+                <Timer className="h-6 w-6 mb-2" />
+                <p className="font-semibold">Trop de tentatives</p>
+                <p className="text-sm">Veuillez réessayer dans {countdown} seconde{countdown > 1 ? 's' : ''}.</p>
               </div>
-            </div>
+            ) : (
+              <Button
+                type="submit"
+                className="w-full gradient-primary"
+                disabled={isLoading}
+              >
+                {isLoading ? "Connexion..." : "Se connecter"}
+              </Button>
+            )}
           </form>
         </CardContent>
       </Card>

@@ -55,7 +55,7 @@ import { cn } from "@/lib/utils";
 const statusDetails = {
     en_attente: { label: "En attente", className: "bg-orange-100 text-orange-800 border-orange-200", icon: "⏱️" },
     approuvee: { label: "Approuvé", className: "bg-green-100 text-green-800 border-green-200", icon: "✅" },
-    traitee: { label: "Traité", className: "bg-blue-100 text-blue-800 border-blue-200", icon: "📋" },
+    en_cours_de_traitement: { label: "Traité", className: "bg-blue-100 text-blue-800 border-blue-200", icon: "📋" },
     rejetee: { label: "Rejeté", className: "bg-red-100 text-red-800 border-red-200", icon: "❌" },
 };
 
@@ -289,7 +289,7 @@ const AdminPermisInternational = () => {
                                                     <SelectItem value="all">Tous les statuts</SelectItem>
                                                     <SelectItem value="en_attente">En attente</SelectItem>
                                                     <SelectItem value="approuvee">Approuvé</SelectItem>
-                                                    <SelectItem value="traitee">Traité</SelectItem>
+                                                    <SelectItem value="en_cours_de_traitement">Traité</SelectItem>
                                                     <SelectItem value="rejetee">Rejeté</SelectItem>
                                                 </SelectContent>
                                             </Select>
@@ -404,16 +404,14 @@ const AdminPermisInternational = () => {
                                                                         <Eye className="w-4 h-4" />
                                                                         <span className="hidden sm:inline">Voir</span>
                                                                     </Button>
-                                                                    {request.statut === 'en_attente' && (
-                                                                        <Button
-                                                                            size="sm"
-                                                                            onClick={() => handleTreatRequest(request)}
-                                                                            className="gap-2 bg-primary hover:bg-primary/90"
-                                                                        >
-                                                                            <FileCheck className="w-4 h-4" />
-                                                                            <span className="hidden sm:inline">Traiter</span>
-                                                                        </Button>
-                                                                    )}
+                                                                    <Button
+                                                                        size="sm"
+                                                                        onClick={() => handleTreatRequest(request)}
+                                                                        className="gap-2 bg-primary hover:bg-primary/90"
+                                                                    >
+                                                                        <FileCheck className="w-4 h-4" />
+                                                                        <span className="hidden sm:inline">Traiter</span>
+                                                                    </Button>
                                                                 </div>
                                                             </TableCell>
                                                         </TableRow>

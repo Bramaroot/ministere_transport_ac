@@ -182,7 +182,7 @@ const PermisInternationalDetailModal = ({ isOpen, onClose, request, onStatusChan
                             <X className="mr-2 h-4 w-4" /> Fermer
                         </Button>
                     </div>
-                    {request.statut === 'en_attente' && onStatusChange && (
+                    {onStatusChange && (
                         <div className="flex gap-2">
                             <Button
                                 variant="outline"

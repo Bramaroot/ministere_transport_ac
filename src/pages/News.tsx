@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import PageBanner from "@/components/PageBanner";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar, Search, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -9,12 +8,16 @@ import { useToast } from "@/components/ui/use-toast";
 
 interface NewsArticle {
   id: number;
+  slug?: string;
   titre: string;
   contenu: string;
   url_image?: string;
   active: boolean;
   date_creation: string;
 }
+
+// Construire l'URL de base du serveur pour les images
+const serverBaseUrl = (import.meta.env.VITE_API_URL || '').replace('/api', '');
 
 const News = () => {
   const [allNews, setAllNews] = useState<NewsArticle[]>([]);
@@ -33,7 +36,6 @@ const News = () => {
       const response = await fetch("/api/news");
       if (!response.ok) throw new Error("Failed to fetch news");
       const data = await response.json();
-      // Filtrer seulement les actualités actives
       const activeNews = data.filter((item: NewsArticle) => item.active);
       setAllNews(activeNews);
       setFilteredNews(activeNews);
@@ -55,6 +57,18 @@ const News = () => {
     );
     setFilteredNews(results);
   }, [searchQuery, allNews]);
+
+  const getImageUrl = (url?: string) => {
+    if (!url) {
+      return 'https://via.placeholder.com/800x500?text=Image+non+disponible';
+    }
+    // Si l'URL est déjà absolue, la retourner telle quelle
+    if (url.startsWith('http')) {
+      return url;
+    }
+    // Sinon, construire l'URL complète
+    return `${serverBaseUrl}/uploads/${url}`;
+  };
 
   return (
     <>
@@ -97,7 +111,7 @@ const News = () => {
                   <Card className="overflow-hidden h-full hover-lift hover:shadow-xl transition-all">
                     <div className="relative aspect-video overflow-hidden bg-muted">
                       <img
-                        src={item.url_image || 'https://via.placeholder.com/800x500?text=Image+non+disponible'}
+                        src={getImageUrl(item.url_image)}
                         alt={item.titre}
                         className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
                       />

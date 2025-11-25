@@ -11,7 +11,6 @@ import {
   Calendar,
   Globe,
   FileEdit,
-  UserCircle2,
   Settings,
 } from "lucide-react";
 import {
@@ -41,21 +40,23 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
+// La définition des liens inclut maintenant les rôles autorisés
 const menuItems = [
-  { title: "Tableau de Bord", url: "/mtac-dash-admin", icon: LayoutDashboard },
-  { title: "Actualités", url: "/mtac-dash-admin/news", icon: FileText },
-  { title: "Événements", url: "/mtac-dash-admin/events", icon: Calendar },
-  { title: "Appels d'Offres", url: "/mtac-dash-admin/tenders", icon: FileEdit },
-  { title: "Projets", url: "/mtac-dash-admin/projects", icon: Building2 },
+  { title: "Tableau de Bord", url: "/mtac-dash-admin", icon: LayoutDashboard, allowedRoles: ['admin', 'editeur', 'consultant'] },
+  { title: "Actualités", url: "/mtac-dash-admin/news", icon: FileText, allowedRoles: ['admin', 'editeur'] },
+  { title: "Événements", url: "/mtac-dash-admin/events", icon: Calendar, allowedRoles: ['admin', 'editeur'] },
+  { title: "Appels d'Offres", url: "/mtac-dash-admin/tenders", icon: FileEdit, allowedRoles: ['admin', 'editeur'] },
+  { title: "Projets", url: "/mtac-dash-admin/projects", icon: Building2, allowedRoles: ['admin', 'editeur'] },
   {
     title: "E-Services",
     url: "/mtac-dash-admin/e-services",
     icon: Globe,
+    allowedRoles: ['admin', 'consultant'], // Règle personnalisée
     submenu: [
       { title: "Demandes de Permis", url: "/mtac-dash-admin/demandes/permis-international" },
     ]
   },
-  { title: "Utilisateurs", url: "/mtac-dash-admin/users", icon: Users },
+  { title: "Utilisateurs", url: "/mtac-dash-admin/users", icon: Users, allowedRoles: ['admin', 'consultant'] }, // Règle personnalisée
 ];
 
 export function AdminSidebar() {
@@ -65,8 +66,8 @@ export function AdminSidebar() {
   const { logout, user } = useAuth();
   const collapsed = state === "collapsed";
 
-  // Déterminer quel submenu doit être ouvert en fonction de l'URL actuelle
   const getInitialOpenSubmenu = () => {
+    // ... (le reste de la fonction ne change pas)
     for (const item of menuItems) {
       if (item.submenu) {
         const hasActiveSubmenu = item.submenu.some(subItem =>
@@ -90,7 +91,7 @@ export function AdminSidebar() {
   };
 
   const handleLogout = () => {
-    logout(); // Utilise la fonction logout du contexte qui gère le refresh token
+    logout();
     navigate("/mtac-dash-login");
   };
 
@@ -98,7 +99,6 @@ export function AdminSidebar() {
     setOpenSubmenu(openSubmenu === title ? null : title);
   };
 
-  // Mettre à jour le submenu ouvert quand l'URL change
   useEffect(() => {
     const activeSubmenu = getInitialOpenSubmenu();
     if (activeSubmenu) {
@@ -106,7 +106,6 @@ export function AdminSidebar() {
     }
   }, [location.pathname]);
 
-  // Obtenir les initiales de l'utilisateur
   const getUserInitials = () => {
     if (user?.prenom && user?.nom) {
       return `${user.prenom[0]}${user.nom[0]}`.toUpperCase();
@@ -142,43 +141,46 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild={!item.submenu}
-                    isActive={isActive(item.url)}
-                    tooltip={collapsed ? item.title : undefined}
-                    onClick={() => item.submenu && toggleSubmenu(item.title)}
-                  >
-                    {item.submenu ? (
-                      <div className="flex justify-between w-full">
-                        <div className="flex items-center gap-2">
+              {menuItems
+                // On filtre les liens en fonction du rôle de l'utilisateur
+                .filter(item => user && item.allowedRoles.includes(user.role))
+                .map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild={!item.submenu}
+                      isActive={isActive(item.url)}
+                      tooltip={collapsed ? item.title : undefined}
+                      onClick={() => item.submenu && toggleSubmenu(item.title)}
+                    >
+                      {item.submenu ? (
+                        <div className="flex justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.title}</span>
+                          </div>
+                          <ChevronDown className={`w-4 h-4 transition-transform ${openSubmenu === item.title ? 'rotate-180' : ''}`} />
+                        </div>
+                      ) : (
+                        <Link to={item.url}>
                           <item.icon className="w-4 h-4" />
                           <span>{item.title}</span>
-                        </div>
-                        <ChevronDown className={`w-4 h-4 transition-transform ${openSubmenu === item.title ? 'rotate-180' : ''}`} />
-                      </div>
-                    ) : (
-                      <Link to={item.url}>
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.title}</span>
-                      </Link>
+                        </Link>
+                      )}
+                    </SidebarMenuButton>
+                    {item.submenu && openSubmenu === item.title && !collapsed && (
+                      <SidebarMenuSub>
+                        {item.submenu.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <Link to={subItem.url}>
+                              <SidebarMenuSubButton isActive={isActive(subItem.url, true)}>
+                                {subItem.title}
+                              </SidebarMenuSubButton>
+                            </Link>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
                     )}
-                  </SidebarMenuButton>
-                  {item.submenu && openSubmenu === item.title && !collapsed && (
-                    <SidebarMenuSub>
-                      {item.submenu.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <Link to={subItem.url}>
-                            <SidebarMenuSubButton isActive={isActive(subItem.url, true)}>
-                              {subItem.title}
-                            </SidebarMenuSubButton>
-                          </Link>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  )}
-                </SidebarMenuItem>
+                  </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>

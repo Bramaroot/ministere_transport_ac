@@ -1,5 +1,18 @@
 import axios from "axios";
 
+// Interrupteur pour activer/désactiver la logique de rafraîchissement
+let isAuthInterceptorActive = false;
+
+/**
+ * Active ou désactive l'intercepteur de rafraîchissement de token.
+ * Doit être appelé par les composants de route (protégées ou non).
+ * @param isActive booléen pour activer ou non
+ */
+export function setAuthInterceptor(isActive: boolean) {
+    isAuthInterceptorActive = isActive;
+}
+
+
 export const api = axios.create({
     // Utiliser le proxy Vite en dev (/api), sinon l'URL complète en prod
     baseURL: import.meta.env.VITE_API_URL || "/api",
@@ -23,7 +36,9 @@ api.interceptors.response.use(
     (res) => res,
     async (error) => {
         const original = error.config;
-        if (error.response?.status === 401 && !original._retry) {
+        
+        // La logique de rafraîchissement n'est exécutée que si l'interrupteur est activé
+        if (isAuthInterceptorActive && error.response?.status === 401 && !original._retry) {
             original._retry = true;
             if (!refreshing) {
                 refreshing = true;

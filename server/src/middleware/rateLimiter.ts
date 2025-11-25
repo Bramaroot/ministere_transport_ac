@@ -18,7 +18,7 @@ export const authLimiter = rateLimit({
 
 // Rate limiter strict pour les routes de connexion/inscription uniquement
 export const strictAuthLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 10, // Limite stricte pour prévenir le brute force
-  message: 'Trop de tentatives de connexion. Veuillez réessayer dans 10 minutes.',
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 3, // Limite stricte pour prévenir le brute force
+  message: 'Trop de tentatives de connexion. Veuillez réessayer dans une minute.',
 });
