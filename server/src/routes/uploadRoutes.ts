@@ -6,9 +6,15 @@ const router = Router();
 
 // Route pour uploader une image
 router.post('/image', checkAuth, (req, res) => {
+  console.log('📤 [UPLOAD] Début upload');
+  console.log('📤 [UPLOAD] Content-Type:', req.get('content-type'));
+  console.log('📤 [UPLOAD] User:', req.user?.email);
+
   uploadSingle(req, res, (err) => {
     if (err) {
-      console.error('Erreur lors de l\'upload:', err);
+      console.error('❌ [UPLOAD] Erreur Multer:', err);
+      console.error('❌ [UPLOAD] Message:', err.message);
+      console.error('❌ [UPLOAD] Code:', err.code);
       return res.status(400).json({
         success: false,
         message: err.message || 'Erreur lors de l\'upload de l\'image'
@@ -16,14 +22,17 @@ router.post('/image', checkAuth, (req, res) => {
     }
 
     if (!req.file) {
+      console.error('❌ [UPLOAD] Aucun fichier reçu');
       return res.status(400).json({
         success: false,
         message: 'Aucun fichier fourni'
       });
     }
 
+    console.log('✅ [UPLOAD] Fichier uploadé:', req.file.filename);
+    console.log('✅ [UPLOAD] Taille:', req.file.size, 'bytes');
+
     // Retourner l'URL complète de l'image uploadée
-    // Construire l'URL en fonction de l'hôte de la requête
     const protocol = req.protocol;
     const host = req.get('host');
     const imageUrl = `${protocol}://${host}/uploads/news/${req.file.filename}`;

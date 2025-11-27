@@ -74,7 +74,7 @@ export const upload = multer({
   storage: newsStorage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // Limite de 5MB
+    fileSize: 10 * 1024 * 1024, // Limite de 10MB
   }
 });
 

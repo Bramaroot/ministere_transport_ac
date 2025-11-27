@@ -43,11 +43,13 @@ const Login = () => {
           description: "Bienvenue dans votre espace.",
         });
 
-        if (response.user.role === 'admin') {
-          navigate("/mtac-dash-admin");
-        } else {
-          navigate("/");
-        }
+        setTimeout(() => {
+          if (response.user.role === 'admin') {
+            navigate("/mtac-dash-admin", { replace: true });
+          } else {
+            navigate("/", { replace: true });
+          }
+        }, 100);
       } else {
         toast.error("Erreur de connexion", {
           description: response.message || "Identifiants incorrects.",
