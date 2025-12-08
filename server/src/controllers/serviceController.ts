@@ -189,25 +189,73 @@ export const getAllPermisInternational = async (req: Request, res: Response) => 
         const total = parseInt(totalResult.rows[0].count, 10);
 
         // Format data for frontend
-        const applications = result.rows.map(row => ({
-            id: row.id,
-            reference: row.code_suivi,
-            statut: row.status,
-            created_at: row.created_at,
-            updated_at: row.updated_at,
-            demandeur_details: {
-                nom_complet: `${row.prenom} ${row.nom}`,
-                email: row.email,
-                telephone: row.telephone
-            },
-            permis_details: {
-                numero_permis: row.numero_permis_national,
-                categorie: row.categorie_permis,
-                date_delivrance: row.date_delivrance_permis,
-                date_expiration: row.date_expiration_permis
-            },
-            documents: row.documents || []
-        }));
+        const applications = result.rows.map(row => {
+            // Construire le tableau de documents à partir des colonnes de chemins
+            const documents = [];
+
+            if (row.path_demande_manuscrite) {
+                documents.push({
+                    type_document: 'demande_manuscrite',
+                    chemin_fichier: row.path_demande_manuscrite
+                });
+            }
+
+            if (row.path_timbre_fiscal) {
+                documents.push({
+                    type_document: 'timbre_fiscal',
+                    chemin_fichier: row.path_timbre_fiscal
+                });
+            }
+
+            if (row.path_copie_permis_national) {
+                documents.push({
+                    type_document: 'copie_permis_national',
+                    chemin_fichier: row.path_copie_permis_national
+                });
+            }
+
+            if (row.path_copie_ancien_permis) {
+                documents.push({
+                    type_document: 'copie_ancien_permis',
+                    chemin_fichier: row.path_copie_ancien_permis
+                });
+            }
+
+            if (row.paths_photos_identite) {
+                const photoPaths = typeof row.paths_photos_identite === 'string'
+                    ? JSON.parse(row.paths_photos_identite)
+                    : row.paths_photos_identite;
+
+                if (Array.isArray(photoPaths)) {
+                    photoPaths.forEach((photoPath, index) => {
+                        documents.push({
+                            type_document: 'photo_identite',
+                            chemin_fichier: photoPath
+                        });
+                    });
+                }
+            }
+
+            return {
+                id: row.id,
+                reference: row.code_suivi,
+                statut: row.status,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                demandeur_details: {
+                    nom_complet: `${row.prenom} ${row.nom}`,
+                    email: row.email,
+                    telephone: row.telephone
+                },
+                permis_details: {
+                    numero_permis: row.numero_permis_national,
+                    categorie: row.categorie_permis,
+                    date_delivrance: row.date_delivrance_permis,
+                    date_expiration: row.date_expiration_permis
+                },
+                documents: documents
+            };
+        });
 
         res.status(200).json({
             applications,

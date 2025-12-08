@@ -22,6 +22,10 @@ const PermisInternationalDetailModal = ({ isOpen, onClose, request, onStatusChan
 
     if (!isOpen || !request) return null;
 
+    console.log("🔍 Modal - Request reçu:", request);
+    console.log("🔍 Modal - Documents:", request.documents);
+    console.log("🔍 Modal - Reference:", request.reference);
+
     const getStatusBadge = (status) => {
         const details = statusDetails[status] || { label: status, color: "text-gray-600", bgColor: "bg-gray-100" };
         return (
@@ -33,9 +37,9 @@ const PermisInternationalDetailModal = ({ isOpen, onClose, request, onStatusChan
 
     const renderDocumentLink = (doc, reference) => {
         if (!doc || !doc.chemin_fichier) return null;
-        
-        const fileName = doc.chemin_fichier.split('/').pop();
-        const fileUrl = `${import.meta.env.VITE_API_URL}/uploads/private_uploads/permis_international/${reference}/${fileName}`;
+
+        // chemin_fichier contient déjà le chemin complet comme "permis_international/reference/file.pdf"
+        const fileUrl = `/private_uploads/${doc.chemin_fichier}`;
 
         return (
             <a
@@ -52,7 +56,7 @@ const PermisInternationalDetailModal = ({ isOpen, onClose, request, onStatusChan
 
     const photoPath = request.documents?.find(doc => doc.type_document === 'photo_identite')?.chemin_fichier;
     const photoUrl = photoPath
-        ? `${import.meta.env.VITE_API_URL}/uploads/private_uploads/permis_international/${request.reference}/${photoPath.split('/').pop()}`
+        ? `/private_uploads/${photoPath}`
         : null;
 
     if (showPreview) {

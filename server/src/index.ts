@@ -72,7 +72,11 @@ pool.connect()
   });
 
 // Middlewares
-const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5173'];
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://transports.gouv.ne',
+  'https://www.transports.gouv.ne'
+];
 
 app.use(cors({
   origin: (origin, callback) => {

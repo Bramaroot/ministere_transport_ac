@@ -85,6 +85,8 @@ const AdminPermisInternational = () => {
         try {
             const status = statusFilter === 'all' ? '' : statusFilter;
             const data = await getPermisInternationalApplications(currentPage, itemsPerPage, debouncedSearchTerm, status);
+            console.log("📦 Données reçues du backend:", data);
+            console.log("📄 Documents de la première demande:", data.applications?.[0]?.documents);
             setRequests(Array.isArray(data.applications) ? data.applications : []);
             setTotalPages(data.totalPages || 1);
             setTotalRequests(data.totalApplications || 0);
